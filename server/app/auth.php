@@ -15,11 +15,11 @@ function __autoload($class)
 
 $filename = 'data/status.json';
 
-if ( file_exists($filename) )
+if ( file_exists( $filename ) )
 {
-    $status = \json_decode( \file_get_contents($filename), true );
+    $status = \json_decode( \file_get_contents( $filename ), true );
 
-    if ( $status['status'] )
+    if ( $status[ 'status' ] )
     {
         echo 200;
     }
@@ -30,8 +30,6 @@ if ( file_exists($filename) )
 }
 else
 {
-    file_put_contents($filename, \json_encode(['status' => true]));
-
     $amoDaten = $_POST['amoDaten'];
 
     /*==================================
@@ -72,5 +70,40 @@ else
     else
     {
         echo 200;
+
+        file_put_contents( $filename, \json_encode( ['status' => true] ) );
+
+        $filenameSettings = 'data/settings.json';
+        $settings = [
+            'tasks' => [
+                'value' => false
+            ],
+
+            'contacts' => [
+                'value' => false,
+
+                'tasks' => [
+                    'value' => false
+                ],
+
+                'companies' => [
+                    'value' => false,
+    
+                    'tasks' => [
+                        'value' => false
+                    ],
+                ]
+            ],
+
+            'companies' => [
+                'value' => false,
+
+                'tasks' => [
+                    'value' => false
+                ],
+            ]
+        ];
+
+        file_put_contents( $filenameSettings, \json_encode( $settings ) );
     }
 }

@@ -3,7 +3,7 @@
     "name": "widget.name",
     "description": "widget.description",
     "short_description": "widget.short_description",
-    "version": "1.0.10",
+    "version": "1.0.13",
     "interface_version": 2,
     "init_once": false,
     "locale": [
@@ -13,13 +13,10 @@
     "installation": true,
     "support": {
       "link": "https://www.amocrm.com",
-      "email": "support@amocrm.com"
+      "email": "rassulovmurad@gmail.com"
     }
   },
   "locations": [
-    "ccard-1",
-    "clist-0",
-    "lcard-1",
     "llist-0",
     "settings",
     "digital_pipeline",

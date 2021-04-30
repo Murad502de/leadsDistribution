@@ -53,3 +53,95 @@
 #js-ac-sub-subs-container {
   min-height: 38px;
 }
+
+.left,
+.right {
+  display: inline-block;
+  width: 100%;
+  margin-right: -100%;
+  vertical-align: bottom;
+}
+.right {
+  text-align: right;
+}
+
+.per_zeichen__svg {
+  width: 10px;
+  height: 10px;
+}
+
+.percent_wert {
+  text-align: center;
+  width: 30px;
+}
+
+/* MOdal distribution */
+
+.dist_progress_status {
+  height: 32px;
+  margin-bottom: 3px;
+  width: 100%;
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+}
+
+.dist_progress_filter {
+  width: 0;
+  height: 100%;
+  flex-shrink: 1;
+  -webkit-transition: width 1s;
+  transition: width 1s;
+}
+
+.dist_progress_status-text {
+  flex-shrink: 0;
+  font-size: 25px;
+  color: #1375ab;
+}
+
+.dist_progress_bar-wrapper {
+  height: 5px;
+  width: 100%;
+  background: #f5f5f5;
+}
+
+.dist_progress_bar {
+  position: relative;
+  width: 0;
+  height: 5px;
+  background: #1375ab;
+  -webkit-transition: width 1s;
+  transition: width 1s;
+}
+
+.dist_modal-body_actions {
+  margin-top: 23px;
+  font-size: 0;
+  display: -webkit-box;
+  display: flex;
+}
+
+/* MOdal distribution */
+
+/* advancedSettings */
+
+li.advanced_settings > ul.advanced_settings {
+  margin-left: 10px;
+}
+
+/*.advanced_settings_wrapper {
+  
+}*/
+
+.lead_wrapper {
+  margin-left: 45%;
+  margin-top: 30%;
+}
+
+.advanced_settings__button {
+  text-align: right;
+}
+
+/* advancedSettings */

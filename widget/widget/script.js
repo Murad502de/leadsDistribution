@@ -49,8 +49,7 @@ define(['jquery', 'underscore', 'twigjs', 'lib/components/base/modal', 'https://
         }
       },
       advancedSettings: function () {
-        console.log('advancedSettings');
-        return true;
+        return Extern_leadsDist.advancedSettings();
       },
 
       onSalesbotDesignerSave: function () {

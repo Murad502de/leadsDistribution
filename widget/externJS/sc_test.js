@@ -66,7 +66,7 @@ define(['jquery'], function ($) {
             },
             render: function () {
                 var lang = self.i18n('userLang');
-                w_code = self.get_settings().widget_code; //в данном случае w_code='new-widget'
+                w_code = self.get_settings().widget_code; //в данном случае ='new-widget'
                 if (typeof (AMOCRM.data.current_card) != 'undefined') {
                     if (AMOCRM.data.current_card.id == 0) {
                         return false;

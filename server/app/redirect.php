@@ -8,10 +8,12 @@ header("HTTP/1.0 200 OK");
 if ( $_GET['param'] == 'destroy' )
 {
     $filename = 'data/status.json';
+    $filenameSettings = 'data/settings.json';
 
     if ( file_exists( $filename ) )
     {
         unlink( $filename );
+        unlink( $filenameSettings );
         unlink( 'data/userStatus.json' );
         
         echo 200;
@@ -44,5 +46,26 @@ if ( $_GET[ 'param' ] == 'setStatus' )
         file_put_contents($filename, \json_encode($users));
 
         echo 201;
+    }
+}
+
+if ( $_GET[ 'param' ] == 'setSettings' )
+{
+    $filename = 'data/settings.json';
+
+    //file_put_contents($filename, \json_encode(  ));
+}
+
+if ( $_GET[ 'param' ] == 'getSettings' )
+{
+    $filename = 'data/settings.json';
+
+    if ( file_exists( $filename ) )
+    {
+        echo \file_get_contents( $filename );
+    }
+    else
+    {
+        echo 404;
     }
 }
