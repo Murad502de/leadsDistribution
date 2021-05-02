@@ -22,7 +22,11 @@ function __autoload($class)
 
 $start = microtime(true);
 
-\file_put_contents( 'data/app_postDaten.txt', \print_r( $_POST, true ) );
+\file_put_contents( 'data/app_postDaten.txt', \print_r( $_POST, true ) ); /* Debug */
+
+$settings = \json_decode( \file_get_contents( 'data/settings.json' ), true );
+
+\file_put_contents( 'data/app_settings.txt', \print_r( $settings, true ) ); /* Debug */
 
 $method = $_POST[ 'amoData' ][ 'method' ];
 $leads = $_POST[ 'amoData' ][ 'leads' ];
@@ -64,62 +68,32 @@ if ( $method === 'even' )
         $companies = $leadCurrent[ '_embedded' ][ 'companies' ];
 
         // Tasks von Lead bearbeiten
-        tasksBearbeiten( $task, $leadId, $responsibleUserId_lead, $users[ $userIndex ], $tasksUpdate );
+        if ( $settings[ 'tasks' ][ 'value' ] ) tasksBearbeiten( $task, $leadId, $responsibleUserId_lead, $users[ $userIndex ], $tasksUpdate );
 
         // Unternehmen von Lead bearbeiten
-        companyBearbeiten( $company, $companies, $companyUpdateData, $task, $responsibleUserId_lead, $users[ $userIndex ], $tasksUpdate );
+        if ( $settings[ 'companies' ][ 'value' ] ) companyBearbeiten( $company, $companies, $companyUpdateData, $task, $responsibleUserId_lead, $users[ $userIndex ], $tasksUpdate, $settings[ 'companies' ] );
 
         // 0.3 Sekunden warten
         usleep( 300000 );
 
         // Kontakten von Lead bearbeiten
-        if ( \count( $contacts ) )
-        {
-            for ( $contactIndex = 0; $contactIndex < \count( $contacts ); $contactIndex++ )
-            {
-                $contactId = $contacts[ $contactIndex ][ 'id' ];
-
-                // aktualisierte Kontaktsdaten vorbereiten
-                $contactUpdateData[] = [
-                    'id' => (int)$contactId,
-                    'responsible_user_id' => (int)$users[ $userIndex ]
-                ];
-
-                // Kontakt suchen mit contact_id
-                $contactCurrent = $contact->getById( $contactId );
-
-                \file_put_contents( 'data/app_getContactById_list.txt', \print_r( $contactCurrent, true ), FILE_APPEND );
-
-                // Information aus Contact sammeln: responsible_id, companies
-                $responsibleUserId_contact = $contactCurrent[ 'responsible_user_id' ];
-                $companies = $contactCurrent[ '_embedded' ][ 'companies' ];
-
-                // Tasks von Contact bearbeiten
-                tasksBearbeiten( $task, $contactId, $responsibleUserId_contact, $users[ $userIndex ], $tasksUpdate );
-
-                // Unternehmen von Kontakten bearbeiten
-                companyBearbeiten( $company, $companies, $companyUpdateData, $task, $responsibleUserId_contact, $users[ $userIndex ], $tasksUpdate );
-
-                // 0.3 Sekunden warten
-                usleep( 300000 );
-            }
-        }
+        if ( $settings[ 'contacts' ][ 'value' ] ) contactsBearbeiten( $contact, $contacts, $contactUpdateData, $responsibleUserId_lead, $users[ $userIndex ], $task, $tasksUpdate, $company, $companyUpdateData, $settings[ 'contacts' ] );
     }
 
     // Tasks bearbeiten: wechseln verantwortlich
-    //$task->updateN( $tasksUpdate );
+    $task->updateN( $tasksUpdate );
     \file_put_contents( 'data/app_taskUpdateData.txt', \print_r( $tasksUpdate, true ) );
 
     // Unternehmen bearbeiten: wechseln verantwortlich
-    //$company->updateN( $companyUpdateData );
+    $company->updateN( $companyUpdateData );
     \file_put_contents( 'data/app_companyUpdateData.txt', \print_r( $companyUpdateData, true ) );
 
     // kontakten bearbeiten: wechseln verantwortlich
-    //$contact->updateN( $contactUpdateData );
+    $contact->updateN( $contactUpdateData );
     \file_put_contents( 'data/app_contactUpdateData.txt', \print_r( $contactUpdateData, true ) );
 
     // Leads bearbeiten: wechseln verantwortlich
-    //$lead->updateN( $leadUpdateData );
+    $lead->updateN( $leadUpdateData );
     \file_put_contents( 'data/app_leadUpdateData.txt', \print_r( $leadUpdateData, true ) );
 }
 

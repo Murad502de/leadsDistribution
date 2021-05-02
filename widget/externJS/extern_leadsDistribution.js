@@ -5,12 +5,59 @@ function extern_leadsDistribution()
         widget = null;
         name = null;
         serverAddress = null;
+        modal = null;
 
         constructor( self )
         {
             this.widget = self;
             this.name = 'leadsDistribution';
             this.serverAddress = 'https://hub.integrat.pro/Murad/' + this.name + '/';
+
+            /* Modal */
+            this.modal = {
+                modalWindow: null,
+
+                show: function( Modal, data ){
+
+                    this.modalWindow = new Modal( {
+                        class_name: 'modal-window',
+                        init: function ( $modal_body ) {
+                            var $this = $( this );
+                            $modal_body
+                                .trigger( 'modal:loaded' ) // запускает отображение модального окна
+                                .html( data )
+                                .trigger( 'modal:centrify' )  // настраивает модальное окно
+                        },
+                        disable_escape_keydown: true,
+                        disable_overlay_click: true,
+                        destroy: function () {
+                            console.log( 'close modal-destroy' );
+
+                            return true;
+                        }
+                    } );
+
+                    $( '#close_modal_dist' ).hide();
+                },
+
+                progress: function( progress ){
+                    $('.dist_progress_filter').css( 'width', progress + '%' );
+                    $('.dist_progress_status-text').text( progress + '%' )
+
+                    $('.dist_progress_bar').css( 'width', progress + '%' );
+
+                    if ( progress == 100 )
+                    {
+                        $( '#close_modal_dist' ).show( () => {
+                            $( '#close_modal_dist' ).on( 'click', () => { this.destroy(); } );
+                        } );
+                    }
+                },
+
+                destroy: function(){
+                    this.modalWindow.destroy();
+                }
+            };
         }
         
         render()
@@ -216,6 +263,7 @@ function extern_leadsDistribution()
                 console.log( this.name + ' << bind_actions für llist' ); /* debug*/
 
                 let widget = this.widget;
+                let modal = this.modal;
                 let serverAddress = this.serverAddress;
                 let getUsersList_bind_actions = this.getUsersList_bind_actions;
 
@@ -252,58 +300,34 @@ function extern_leadsDistribution()
                             beforeSend: function(){
                                 console.log( 'open modal window' );
 
-                                let data = '\
-                                    <h2>Выполняется распределение</h2>\
-                                    <div class = "dist_progress_inner">\
-                                        <div class = "dist_progress_status">\
-                                            <div class = "dist_progress_filter"></div>\
-                                            <span class = "dist_progress_status-text">0%</span>\
-                                        </div>\
-                                        <div class = "dist_progress_bar-wrapper">\
-                                            <div class = "dist_progress_bar"></div>\
-                                        </div>\
-                                        <div class = "dist_modal-body_actions">\
-                                            <button id = "close_modal_dist" class = "button-input js-modal-accept js-button-with-loader modal-body__actions__save js-progress-cont-to-work">\
-                                                <span class = "dist_button-input-inner">\
-                                                    <span class = "dist_button-input-inner_text">Продолжить работу</span>\
-                                                </span>\
-                                            </button>\
-                                        </div>\
-                                    </div>\
-                                ';
+                                let data = `
+                                    <h2>Выполняется распределение</h2>
+                                    <div class = "dist_progress_inner">
+                                        <div class = "dist_progress_status">
+                                            <div class = "dist_progress_filter"></div>
+                                            <span class = "dist_progress_status-text">0%</span>
+                                        </div>
+                                        <div class = "dist_progress_bar-wrapper">
+                                            <div class = "dist_progress_bar"></div>
+                                        </div>
+                                        <div class = "dist_modal-body_actions">
+                                            <button id = "close_modal_dist" class = "button-input js-modal-accept js-button-with-loader modal-body__actions__save js-progress-cont-to-work">
+                                                <span class = "dist_button-input-inner">
+                                                    <span class = "dist_button-input-inner_text">Продолжить работу</span>
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
 
-                                widget.modal = new Modal( {
-                                    class_name: 'modal-window',
-                                    init: function ( $modal_body ) {
-                                        var $this = $( this );
-                                        $modal_body
-                                            .trigger( 'modal:loaded' ) // запускает отображение модального окна
-                                            .html( data )
-                                            .trigger( 'modal:centrify' )  // настраивает модальное окно
-                                    },
-                                    disable_escape_keydown: true,
-                                    disable_overlay_click: true,
-                                    destroy: function () {
-                                        console.log( 'close modal-destroy' );
-    
-                                        return true;
-                                    }
-                                } );
-
-                                $( '#close_modal_dist' ).hide();
+                                modal.show( Modal, data );
 
                             },
                             complete: function()
                             {
                                 console.log( 'close modal window' );
 
-                                $('.dist_progress_filter').css('width', '100%');
-                                $('.dist_progress_status-text').text('100%')
-                                $('.dist_progress_bar').css('width', '100%');
-
-                                $( '#close_modal_dist' ).show( () => {
-                                    $( '#close_modal_dist' ).on( 'click', () => { widget.modal.destroy(); } );
-                                } );
+                                modal.progress( 100 );
                             },
                             error: function(x, t, e){
                                 if( t === 'timeout') {
@@ -428,6 +452,31 @@ function extern_leadsDistribution()
                 $( '.advanced_settings__button' ).on( 'click', '.button-input_blue', () => {
                     console.log( 'Einstellungen senden' ); /* Debug */
 
+                    let data = `
+                        <h2>Сохранение настроек</h2>
+                        <div class = "dist_progress_inner">
+                            <div class = "dist_progress_status">
+                                <div class = "dist_progress_filter"></div>
+                                <span class = "dist_progress_status-text">0%</span>
+                            </div>
+                            <div class = "dist_progress_bar-wrapper">
+                                <div class = "dist_progress_bar"></div>
+                            </div>
+                            <div class = "dist_modal-body_actions">
+                                <button id = "close_modal_dist" class = "button-input js-modal-accept js-button-with-loader modal-body__actions__save js-progress-cont-to-work">
+                                    <span class = "dist_button-input-inner">
+                                        <span class = "dist_button-input-inner_text">Продолжить работу</span>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+
+                    this.modal.show( Modal, data );
+
+                    $( '.advanced_settings__button_inner' ).addClass( 'button-input-disabled' );
+                    $( '.advanced_settings__button_inner' ).removeClass( 'button-input_blue' );
+
                     this.widget.widgetSettings.tasks.value = $( '.lead_tasks__inner' )[0].checked;
 
                     this.widget.widgetSettings.contacts.value = $( '.lead_contacts_list_input' )[0].checked;
@@ -435,10 +484,22 @@ function extern_leadsDistribution()
                     this.widget.widgetSettings.contacts.companies.value = $( '.lead_contacts_companies_list_input' )[0].checked;
                     this.widget.widgetSettings.contacts.companies.tasks.value = $( '.lead_contacts_companies_tasks__inner' )[0].checked;
 
+                    this.modal.progress( 25 );
+
                     this.widget.widgetSettings.companies.value = $( '.lead_companies_list_input' )[0].checked;
                     this.widget.widgetSettings.companies.tasks.value = $( '.lead_companies_tasks__inner' )[0].checked;
 
                     console.log( this.widget.widgetSettings );
+
+                    this.modal.progress( 50 );
+
+                    $.post( this.serverAddress + 'server/app/redirect.php?param=setSettings', { settings: JSON.stringify( this.widget.widgetSettings ) }, ( antwort ) => {
+                        
+                        console.log( 'Serverantwort << ' + antwort ); /* Debug */
+                        
+                        this.modal.progress( 100 );
+
+                    }, 'json' );
 
                 } );
             }

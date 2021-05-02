@@ -51,9 +51,19 @@ if ( $_GET[ 'param' ] == 'setStatus' )
 
 if ( $_GET[ 'param' ] == 'setSettings' )
 {
+    $settings = $_POST[ 'settings' ];
     $filename = 'data/settings.json';
 
-    //file_put_contents($filename, \json_encode(  ));
+    if ( $settings )
+    {
+        file_put_contents( $filename, $settings );
+
+        echo 201;
+
+        return;
+    }
+
+    echo 400;
 }
 
 if ( $_GET[ 'param' ] == 'getSettings' )
@@ -62,7 +72,7 @@ if ( $_GET[ 'param' ] == 'getSettings' )
 
     if ( file_exists( $filename ) )
     {
-        echo \file_get_contents( $filename );
+        echo file_get_contents( $filename );
     }
     else
     {
