@@ -70,7 +70,7 @@ define(['jquery'], function ($) {
                 if (typeof (AMOCRM.data.current_card) != 'undefined') {
                     if (AMOCRM.data.current_card.id == 0) {
                         return false;
-                    } // не рендерить на contacts/add || leads/add
+                    } // не рендерить на contacts/add || leads/add 
                 }
                 self.render_template({
                     caption: {

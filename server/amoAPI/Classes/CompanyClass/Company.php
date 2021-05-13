@@ -11,10 +11,10 @@ class Company
     private $CompanyDatenbank = null;
     private $requestData = null;
 
-    function __construct()
+    function __construct( $subdomain = null )
     {
         $this->CompanyDatenbank = new Datenbank();
-        $this->requestData = $this->CompanyDatenbank->getData('requestData');
+        $this->requestData = $this->CompanyDatenbank->getData( 'requestData__' . $subdomain );
 
         $this->Http = new Http();
 

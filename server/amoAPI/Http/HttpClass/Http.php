@@ -142,7 +142,7 @@ class Http
         $response['redirect_uri'] = $ServerAnfrageDaten['redirect_uri'];
         $response['subdomain'] = $ServerAnfrageDaten['subdomain'];
 
-        $this->requestData->setData('requestData', $response);
+        $this->requestData->setData('requestData__' . $ServerAnfrageDaten['subdomain'], $response);
 
         //echo "token update \r\n";
 

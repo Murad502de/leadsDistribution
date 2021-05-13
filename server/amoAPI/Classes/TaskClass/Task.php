@@ -11,10 +11,10 @@ class Task
     private $TaskDatenbank = null;
     private $requestData = null;
 
-    function __construct()
+    function __construct( $subdomain = null )
     {
         $this->TaskDatenbank = new Datenbank();
-        $this->requestData = $this->TaskDatenbank->getData('requestData');
+        $this->requestData = $this->TaskDatenbank->getData( 'requestData__' . $subdomain );
 
         $this->Http = new Http();
 

@@ -52,7 +52,7 @@ class OAuth extends Http
         $response['redirect_uri'] = $this->oAuthDaten['redirect_uri'];
         $response['subdomain'] = $this->oAuthDaten['subdomain'];
 
-        $this->AuthData->setData('requestData', $response);
+        $this->AuthData->setData( 'requestData__' . $this->oAuthDaten['subdomain'], $response );
 
         return $response;
     }

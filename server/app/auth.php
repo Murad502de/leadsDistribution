@@ -7,13 +7,13 @@ header("HTTP/1.0 200 OK");
 
 use amoAPI\Auth\OAuthClass\OAuth as OAuth;
 
-function __autoload($class)
+function __autoload( $class )
 {
-    $class = str_replace("\\", "/", $class);
+    $class = str_replace( "\\", "/", $class );
     require_once '../' . $class . '.php';
 }
 
-$filename = 'data/status.json';
+$filename = 'data/status__' . $_POST['amoDaten']['subdomain'] . '.json';
 
 if ( file_exists( $filename ) )
 {
@@ -59,7 +59,7 @@ else
 
     //file_put_contents( 'test.txt', \print_r($OAuthParam, true) );
     
-    $Integration = new OAuth($OAuthParam);
+    $Integration = new OAuth( $OAuthParam );
     $AuthResult = $Integration->auth();
 
     // Authorisationstatus prüfen
@@ -73,7 +73,7 @@ else
 
         file_put_contents( $filename, \json_encode( ['status' => true] ) );
 
-        $filenameSettings = 'data/settings.json';
+        $filenameSettings = 'data/settings__' . $amoDaten['subdomain'] . '.json';
         $settings = [
             'tasks' => [
                 'value' => false

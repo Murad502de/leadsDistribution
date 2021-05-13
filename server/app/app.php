@@ -20,31 +20,33 @@ function __autoload($class)
 
 /* ============================================================== */
 
-$start = microtime(true);
+$start = microtime(true); /* Debug */
 
-\file_put_contents( 'data/app_postDaten.txt', \print_r( $_POST, true ) ); /* Debug */
-
-$settings = \json_decode( \file_get_contents( 'data/settings.json' ), true );
-
-\file_put_contents( 'data/app_settings.txt', \print_r( $settings, true ) ); /* Debug */
+\file_put_contents( 'data/debug/app_postDaten.txt', \print_r( $_POST, true ) ); /* Debug */
 
 $method = $_POST[ 'amoData' ][ 'method' ];
 $leads = $_POST[ 'amoData' ][ 'leads' ];
 $users = $_POST[ 'amoData' ][ 'users' ];
+$subdomain = $_POST[ 'amoData' ][ 'subdomain' ];
 
-$lead = new Lead();
-$contact = new Contact();
-$company = new Company();
-$task = new Task();
+$lead = new Lead( $subdomain );
+$contact = new Contact( $subdomain );
+$company = new Company( $subdomain );
+$task = new Task( $subdomain );
+
+// Die Massive für aktualisierende Daten
+$leadUpdateData = [];
+$contactUpdateData = [];
+$companyUpdateData = [];
+$tasksUpdate = [];
+
+// Verteilungseinstellungen erhalten
+$settings = \json_decode( \file_get_contents( 'data/settings__' . $subdomain . '.json' ), true );
+
+\file_put_contents( 'data/debug/app_settings.txt', \print_r( $settings, true ) ); /* Debug */
 
 if ( $method === 'even' )
 {
-    // Leads bearbeiten
-    $leadUpdateData = [];
-    $contactUpdateData = [];
-    $companyUpdateData = [];
-    $tasksUpdate = [];
-
     for( $leadIndex = 0, $userIndex = 0; $leadIndex < \count( $leads ); $leadIndex++, $userIndex++ )
     {
         if ( $userIndex >= \count( $users ) ) $userIndex = 0;
@@ -60,7 +62,7 @@ if ( $method === 'even' )
         // Lead suchen mit lead_id
         $leadCurrent = $lead->getById( $leadId );
 
-        \file_put_contents( 'data/app_getLeadById_list.txt', \print_r( $leadCurrent, true ), FILE_APPEND );
+        \file_put_contents( 'data/debug/app_getLeadById_list.txt', \print_r( $leadCurrent, true ), FILE_APPEND ); /* Debug */
 
         // Information aus Lead sammeln: responsible_id, contacts, companies
         $responsibleUserId_lead = $leadCurrent[ 'responsible_user_id' ];
@@ -79,26 +81,102 @@ if ( $method === 'even' )
         // Kontakten von Lead bearbeiten
         if ( $settings[ 'contacts' ][ 'value' ] ) contactsBearbeiten( $contact, $contacts, $contactUpdateData, $responsibleUserId_lead, $users[ $userIndex ], $task, $tasksUpdate, $company, $companyUpdateData, $settings[ 'contacts' ] );
     }
-
-    // Tasks bearbeiten: wechseln verantwortlich
-    $task->updateN( $tasksUpdate );
-    \file_put_contents( 'data/app_taskUpdateData.txt', \print_r( $tasksUpdate, true ) );
-
-    // Unternehmen bearbeiten: wechseln verantwortlich
-    $company->updateN( $companyUpdateData );
-    \file_put_contents( 'data/app_companyUpdateData.txt', \print_r( $companyUpdateData, true ) );
-
-    // kontakten bearbeiten: wechseln verantwortlich
-    $contact->updateN( $contactUpdateData );
-    \file_put_contents( 'data/app_contactUpdateData.txt', \print_r( $contactUpdateData, true ) );
-
-    // Leads bearbeiten: wechseln verantwortlich
-    $lead->updateN( $leadUpdateData );
-    \file_put_contents( 'data/app_leadUpdateData.txt', \print_r( $leadUpdateData, true ) );
 }
+
+if ( $method === 'percent' )
+{
+    $total = \count( $leads );
+    $rest = $total;
+    $usersTarget = [];
+
+    for ( $userIndex = 0; $userIndex < count( $users ) && $rest > 0; $userIndex++ )
+    {
+        $currentUserPercentage = $users[ $userIndex ][ 'percentage' ];
+        $numberOfLeads = ( $total / 100 ) * $currentUserPercentage;
+
+        $fractionalPart = ( $numberOfLeads - floor( $numberOfLeads ) ) * 10;
+
+        if ( $fractionalPart >= 5 )
+        {
+            if ( ceil( $numberOfLeads ) <= $rest ) $numberOfLeads = ceil( $numberOfLeads );
+            else $numberOfLeads = floor( $numberOfLeads );
+        }
+        else
+        {
+            if ( $userIndex == ( count( $users ) - 1 ) ) $numberOfLeads = $rest;
+            else $numberOfLeads = floor( $numberOfLeads );
+        }
+
+        $rest -= $numberOfLeads;
+
+        $userTarget = $users[ $userIndex ];
+        $userTarget[ 'numberOfLeads' ] = ( int ) $numberOfLeads;
+
+        $usersTarget[] = $userTarget;
+    }
+
+    for ( $targetUserIndex = 0, $leadIndex = 0; $targetUserIndex < \count( $usersTarget ); $targetUserIndex++ )
+    {
+        for ( $numberOfLeadsIndex = 0; $numberOfLeadsIndex < $usersTarget[ $targetUserIndex ][ 'numberOfLeads' ]; $numberOfLeadsIndex++, $leadIndex++ )
+        {
+            $newResponsibleUser = $usersTarget[ $targetUserIndex ][ 'id' ];
+
+            \file_put_contents( 'data/debug/app_percent.txt', $newResponsibleUser . "\r\n", FILE_APPEND ); /* Debug */
+
+            $leadId = $leads[ $leadIndex ][ 'id' ];
+
+            // aktualisierte Leadsdaten vorbereiten
+            $leadUpdateData[] = [
+                'id' => ( int ) $leadId,
+                'responsible_user_id' => ( int ) $newResponsibleUser
+            ];
+
+            // Lead suchen mit lead_id
+            $leadCurrent = $lead->getById( $leadId );
+
+            \file_put_contents( 'data/debug/app_getLeadById_list__percent.txt', \print_r( $leadCurrent, true ), FILE_APPEND ); /* Debug */
+
+            // Information aus Lead sammeln: responsible_id, contacts, companies
+            $responsibleUserId_lead = $leadCurrent[ 'responsible_user_id' ];
+            $contacts = $leadCurrent[ '_embedded' ][ 'contacts' ];
+            $companies = $leadCurrent[ '_embedded' ][ 'companies' ];
+
+            // Tasks von Lead bearbeiten
+            if ( $settings[ 'tasks' ][ 'value' ] ) tasksBearbeiten( $task, $leadId, $responsibleUserId_lead, $newResponsibleUser, $tasksUpdate );
+
+            // Unternehmen von Lead bearbeiten
+            if ( $settings[ 'companies' ][ 'value' ] ) companyBearbeiten( $company, $companies, $companyUpdateData, $task, $responsibleUserId_lead, $newResponsibleUser, $tasksUpdate, $settings[ 'companies' ] );
+
+            // 0.3 Sekunden warten
+            usleep( 300000 );
+
+            // Kontakten von Lead bearbeiten
+            if ( $settings[ 'contacts' ][ 'value' ] ) contactsBearbeiten( $contact, $contacts, $contactUpdateData, $responsibleUserId_lead, $newResponsibleUser, $task, $tasksUpdate, $company, $companyUpdateData, $settings[ 'contacts' ] );
+        }
+    }
+}
+
+/* DATENAKTUALISIERUNG */
+
+// Tasks bearbeiten: wechseln verantwortlich
+$task->updateN( $tasksUpdate );
+\file_put_contents( 'data/debug/app_taskUpdateData.txt', \print_r( $tasksUpdate, true ) ); /* Debug */
+
+// Unternehmen bearbeiten: wechseln verantwortlich
+$company->updateN( $companyUpdateData );
+\file_put_contents( 'data/debug/app_companyUpdateData.txt', \print_r( $companyUpdateData, true ) ); /* Debug */
+
+// kontakten bearbeiten: wechseln verantwortlich
+$contact->updateN( $contactUpdateData );
+\file_put_contents( 'data/debug/app_contactUpdateData.txt', \print_r( $contactUpdateData, true ) ); /* Debug */
+
+// Leads bearbeiten: wechseln verantwortlich
+$lead->updateN( $leadUpdateData );
+\file_put_contents( 'data/debug/app_leadUpdateData.txt', \print_r( $leadUpdateData, true ) ); /* Debug */
+
+/* DATENAKTUALISIERUNG */
 
 echo 200;
 
-$time = microtime(true) - $start;
-
-\file_put_contents( 'data/app_time.txt', $time );
+$time = microtime(true) - $start; /* Debug */
+\file_put_contents( 'data/debug/app_time.txt', $time ); /* Debug */

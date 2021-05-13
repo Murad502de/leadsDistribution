@@ -5,10 +5,10 @@ header('Access-Control-Allow-Methods: GET, POST');
 header("Access-Control-Allow-Headers: X-Requested-With");
 header("HTTP/1.0 200 OK");
 
-if ( $_GET['param'] == 'destroy' )
+if ( $_GET[ 'param' ] == 'destroy' )
 {
-    $filename = 'data/status.json';
-    $filenameSettings = 'data/settings.json';
+    $filename = 'data/status__' . $_GET[ 'subdomain' ] . '.json';
+    $filenameSettings = 'data/settings__' . $_GET[ 'subdomain' ] . '.json';
 
     if ( file_exists( $filename ) )
     {
@@ -22,7 +22,7 @@ if ( $_GET['param'] == 'destroy' )
 
 if ( $_GET[ 'param' ] == 'user' )
 {
-    $filename = 'data/userStatus.json';
+    $filename = 'data/userStatus__' . $_GET[ 'subdomain' ] . '.json';
 
     if ( file_exists( $filename ) )
     {
@@ -35,7 +35,7 @@ if ( $_GET[ 'param' ] == 'user' )
 
 if ( $_GET[ 'param' ] == 'setStatus' )
 {
-    $filename = 'data/userStatus.json';
+    $filename = 'data/userStatus__' . $_GET[ 'subdomain' ] . '.json';
 
     if ( file_exists( $filename ) )
     {
@@ -52,7 +52,7 @@ if ( $_GET[ 'param' ] == 'setStatus' )
 if ( $_GET[ 'param' ] == 'setSettings' )
 {
     $settings = $_POST[ 'settings' ];
-    $filename = 'data/settings.json';
+    $filename = 'data/settings__' . $_GET[ 'subdomain' ] . '.json';
 
     if ( $settings )
     {
@@ -68,7 +68,7 @@ if ( $_GET[ 'param' ] == 'setSettings' )
 
 if ( $_GET[ 'param' ] == 'getSettings' )
 {
-    $filename = 'data/settings.json';
+    $filename = 'data/settings__' . $_GET[ 'subdomain' ] . '.json';
 
     if ( file_exists( $filename ) )
     {

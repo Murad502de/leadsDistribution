@@ -21,10 +21,10 @@ class Lead
 
     private $customFieldsValues = [];
 
-    function __construct()
+    function __construct( $subdomain = null )
     {
         $this->LeadData = new Datenbank();
-        $this->requestData = $this->LeadData->getData('requestData');
+        $this->requestData = $this->LeadData->getData( 'requestData__' . $subdomain );
 
         $this->Http = new Http();
 

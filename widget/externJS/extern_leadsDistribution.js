@@ -17,7 +17,7 @@ function extern_leadsDistribution()
             this.modal = {
                 modalWindow: null,
 
-                show: function( Modal, data ){
+                show: function( Modal, data, warnung = false ){
 
                     this.modalWindow = new Modal( {
                         class_name: 'modal-window',
@@ -37,7 +37,14 @@ function extern_leadsDistribution()
                         }
                     } );
 
-                    $( '#close_modal_dist' ).hide();
+                    if ( warnung ) $( '#close_modal_dist' ).show( () => { $( '#close_modal_dist' ).on( 'click', () => { this.destroy(); } ); } );
+                    else $( '#close_modal_dist' ).hide();
+                },
+
+                showCloseButton: function(){
+                    $( '#close_modal_dist' ).show( () => {
+                        $( '#close_modal_dist' ).on( 'click', () => { this.destroy(); } );
+                    } );
                 },
 
                 progress: function( progress ){
@@ -244,7 +251,7 @@ function extern_leadsDistribution()
                 console.log( this.name + ' << init für advanced_settings & llist' );
 
                 // man braucht vom Server aktuelle Einstellungen erhalten
-                $.get( this.serverAddress + 'server/app/redirect.php?param=getSettings', ( data ) => {
+                $.get( this.serverAddress + 'server/app/redirect.php?param=getSettings&subdomain=' + AMOCRM.widgets.system.subdomain, ( data ) => {
 
                     widget.widgetSettings = data;
                 });
@@ -256,11 +263,11 @@ function extern_leadsDistribution()
         bind_actions( Modal )
         {
             
-            console.log( this.name + ' << bind_actions' ); /* debug */
+            console.log( this.name + ' << bind_actions' ); /* Debug */
 
             if ( this.widget.system().area == 'llist' )
             {
-                console.log( this.name + ' << bind_actions für llist' ); /* debug*/
+                console.log( this.name + ' << bind_actions für llist' ); /* Debug*/
 
                 let widget = this.widget;
                 let modal = this.modal;
@@ -273,79 +280,231 @@ function extern_leadsDistribution()
                     let exportData = {
                         users: [],
                         leads: [],
-                        method: ''
+                        method: '',
+                        subdomain: AMOCRM.widgets.system.subdomain
                     };
 
-                    if ( $('select#leadsDist_method').val() === 'even' )
+                    if ( $('select#leadsDist_method').val() === 'even' ) /* der Teil gleichmäßiger Verteilung */
                     {
-                        console.log( this.name + ' << Выполнение распределения: even' );
+                        console.log( this.name + ' << Выполнение распределения: even' ); /* Debug */
 
                         // Information sammeln
-                        exportData.users = getUsersList_bind_actions();
+                        exportData.users = getUsersList_bind_actions( 'even' );
                         exportData.method = 'even';
                         exportData.leads = widget.leadsList;
 
-                        console.log( "exportData:" );
-                        console.log( exportData );
+                        console.log( "exportData:" ); /* Debug */
+                        console.log( exportData ); /* Debug */
 
-                        // Information an den Server senden
-                        $.ajax({
-                            url: serverAddress + 'server/app/app.php', // куда отправляем запрос
-                            method: 'post',
-                            dataType: 'json',
-                            data: {
-                                // POST-Daten senden
-                                amoData: exportData
-                            },
-                            beforeSend: function(){
-                                console.log( 'open modal window' );
+                        if ( Number( exportData.users.length ) )
+                        {
+                            console.log( 'gleichmäßige Verteilung kann ausgeführt werden' ); /* Debug */
 
-                                let data = `
-                                    <h2>Выполняется распределение</h2>
-                                    <div class = "dist_progress_inner">
-                                        <div class = "dist_progress_status">
-                                            <div class = "dist_progress_filter"></div>
-                                            <span class = "dist_progress_status-text">0%</span>
+                            
+
+                            // Information an den Server senden
+                            $.ajax({
+                                url: serverAddress + 'server/app/app.php', // куда отправляем запрос
+                                method: 'post',
+                                dataType: 'json',
+                                data: {
+                                    // POST-Daten senden
+                                    amoData: exportData
+                                },
+                                beforeSend: function(){
+                                    console.log( 'open modal window' );
+
+                                    let data = `
+                                        <h2>Выполняется распределение</h2>
+                                        <div class = "dist_progress_inner">
+                                            <div class = "dist_progress_status">
+                                                <div class = "dist_progress_filter"></div>
+                                                <span class = "dist_progress_status-text">0%</span>
+                                            </div>
+                                            <div class = "dist_progress_bar-wrapper">
+                                                <div class = "dist_progress_bar"></div>
+                                            </div>
+                                            <div class = "dist_modal-body_actions">
+                                                <button id = "close_modal_dist" class = "button-input js-modal-accept js-button-with-loader modal-body__actions__save js-progress-cont-to-work">
+                                                    <span class = "dist_button-input-inner">
+                                                        <span class = "dist_button-input-inner_text">Продолжить работу</span>
+                                                    </span>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div class = "dist_progress_bar-wrapper">
-                                            <div class = "dist_progress_bar"></div>
-                                        </div>
-                                        <div class = "dist_modal-body_actions">
-                                            <button id = "close_modal_dist" class = "button-input js-modal-accept js-button-with-loader modal-body__actions__save js-progress-cont-to-work">
-                                                <span class = "dist_button-input-inner">
-                                                    <span class = "dist_button-input-inner_text">Продолжить работу</span>
-                                                </span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                `;
+                                    `;
 
-                                modal.show( Modal, data );
+                                    modal.show( Modal, data );
 
-                            },
-                            complete: function()
-                            {
-                                console.log( 'close modal window' );
+                                },
+                                complete: function(){
+                                    console.log( 'close modal window' );
 
-                                modal.progress( 100 );
-                            },
-                            error: function(x, t, e){
-                                if( t === 'timeout') {
-                                     // Произошел тайм-аут
-                                     console.log('timeout: ' + t);
-                                } else {
-                                     console.log('Ошибка: ' + e);
-                                     console.log('Ошибка t: ' + t);
+                                    modal.progress( 100 );
+                                },
+                                error: function(x, t, e){
+                                    if( t === 'timeout') {
+                                        // Произошел тайм-аут
+                                        console.log('timeout: ' + t);
+                                    }
+                                    else
+                                    {
+                                        console.log('Ошибка: ' + e);
+                                        console.log('Ошибка t: ' + t);
+                                    }
+                                },
+                                success: function( Antwort ){
+                                    console.log( 'Serverantwort von app.php: ' + Antwort );
                                 }
-                            },
-                            success: function( Antwort ){
-                                console.log( 'Serverantwort von app.php: ' + Antwort );
-                            }
-                        });
+                            });
+
+                            
+                        }
+                        else
+                        {
+                            console.log( 'gleichmäßige Verteilung kann NICHT ausgeführt werden' ); /* Debug */
+
+                            let data = `
+                                <div class = "dist_warnung__wrapper">
+                                    <div class = "dist_warnung_logo__wrapper">
+                                        <img class = "dist_warnung__logo" src = "https://www.hub.integrat.pro/Murad/leadsDistribution/widget/source/svg/warnung_schild.svg">
+                                    </div>
+
+                                    <div class = "dist_warnung__container">
+                                        <h3 class = "dist_warnung__title">Распределение не может быть выполнено</h3>
+                                        <div class = "dist_warnung__message">
+                                            <p>Не выбран ни один пользователь</p>
+                                        </div>
+        
+                                        <button id = "close_modal_dist" class = "button-input js-modal-accept js-button-with-loader modal-body__actions__save js-progress-cont-to-work">
+                                            <span class = "dist_button-input-inner">
+                                                <span class = "dist_button-input-inner_text">Продолжить работу</span>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+
+                            modal.show( Modal, data, true );
+                            //modal.showCloseButton();
+                        }
+
                     }
-                    else if ( $('select#leadsDist_method').val() === 'percent' )
+                    else if ( $('select#leadsDist_method').val() === 'percent' ) /* Prozentverteilungsteil */
                     {
-                        console.log( this.name + ' << Выполнение распределения: percent' );
+
+                        let ProzentSumme = 0;
+                        let ProzentInputs = $('input.percent_wert');
+
+                        for (let prozentInputIndex = 0; prozentInputIndex < ProzentInputs.length; prozentInputIndex++)
+                        {
+                            ProzentSumme += Number( ProzentInputs[ prozentInputIndex ].value );
+                        }
+
+                        if ( Number( ProzentSumme ) === 100 )
+                        {
+                            console.log('sum ' + ProzentSumme); /* Debug */
+                            console.log( 'Verteilung kann ausgeführt werden' ); /* Debug */
+
+                            /*
+
+                            console.log( this.name + ' << Выполнение распределения: percent' );
+
+                            // Information sammeln
+                            exportData.users = getUsersList_bind_actions( 'percent' );
+                            exportData.method = 'percent';
+                            exportData.leads = widget.leadsList;
+
+                            console.log( "exportData:" );
+                            console.log( exportData );
+
+                            // Information an den Server senden
+                            $.ajax({
+                                url: serverAddress + 'server/app/app.php', // куда отправляем запрос
+                                method: 'post',
+                                dataType: 'json',
+                                data: {
+                                    // POST-Daten senden
+                                    amoData: exportData
+                                },
+                                beforeSend: function(){
+                                    console.log( 'open modal window' );
+
+                                    let data = `
+                                        <h2>Выполняется распределение</h2>
+                                        <div class = "dist_progress_inner">
+                                            <div class = "dist_progress_status">
+                                                <div class = "dist_progress_filter"></div>
+                                                <span class = "dist_progress_status-text">0%</span>
+                                            </div>
+                                            <div class = "dist_progress_bar-wrapper">
+                                                <div class = "dist_progress_bar"></div>
+                                            </div>
+                                            <div class = "dist_modal-body_actions">
+                                                <button id = "close_modal_dist" class = "button-input js-modal-accept js-button-with-loader modal-body__actions__save js-progress-cont-to-work">
+                                                    <span class = "dist_button-input-inner">
+                                                        <span class = "dist_button-input-inner_text">Продолжить работу</span>
+                                                    </span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `;
+
+                                    modal.show( Modal, data );
+
+                                },
+                                complete: function(){
+                                    console.log( 'close modal window' );
+
+                                    modal.progress( 100 );
+                                },
+                                error: function(x, t, e){
+                                    if ( t === 'timeout') {
+                                        // Произошел тайм-аут
+                                        console.log('timeout: ' + t);
+                                    }
+                                    else
+                                    {
+                                        console.log('Ошибка: ' + e);
+                                        console.log('Ошибка t: ' + t);
+                                    }
+                                },
+                                success: function( Antwort ){
+                                    console.log( 'Serverantwort von app.php: ' + Antwort );
+                                }
+                            });
+
+                            */
+                        }
+                        else
+                        {
+                            console.log('sum ' + ProzentSumme); /* Debug */
+                            console.log( 'Verteilung kann NICHT ausgeführt werden' ); /* Debug */
+
+                            let data = `
+                                <div class = "dist_warnung__wrapper">
+                                    <div class = "dist_warnung_logo__wrapper">
+                                        <img class = "dist_warnung__logo" src = "https://www.hub.integrat.pro/Murad/leadsDistribution/widget/source/svg/warnung_schild.svg">
+                                    </div>
+
+                                    <div class = "dist_warnung__container">
+                                        <h3 class = "dist_warnung__title">Распределение не может быть выполнено</h3>
+                                        <div class = "dist_warnung__message">
+                                            <p>Процентная сумма должна быть всегда равна 100%</p>
+                                        </div>
+        
+                                        <button id = "close_modal_dist" class = "button-input js-modal-accept js-button-with-loader modal-body__actions__save js-progress-cont-to-work">
+                                            <span class = "dist_button-input-inner">
+                                                <span class = "dist_button-input-inner_text">Продолжить работу</span>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+
+                            modal.show( Modal, data, true );
+                            //modal.showCloseButton();
+                        }
                     }
                 });
 
@@ -395,6 +554,43 @@ function extern_leadsDistribution()
                                 }
                                 else input[ 0 ].value = 0;
                             } );
+
+                            /* 0000000000000000000000000000 */
+
+                            let oldValue = '';
+
+                            $('input.percent_wert').on('focus', function(){
+                                console.log('onfocus'); /* Debug */
+                                //console.log( $(this)[0].value ); /* Debug */
+                                
+                                oldValue = $(this)[0].value;
+                                console.log( 'oldValue ' + oldValue ); /* Debug */
+                            
+                                $(this)[0].value = ''
+                            });
+
+                            $('input.percent_wert').on( 'blur', function(){
+                                console.log('onblur'); /* Debug */
+                                console.log( $(this)[0].value ); /* Debug */
+                                
+                                if ( $(this)[0].value == '' )
+                                {
+                                    $(this)[0].value = oldValue;
+                                }
+
+                            } );
+
+                            $('input.percent_wert').on( 'input', function(){
+                                console.log( 'input läuft' ); /* Debug */
+                                console.log( $(this) ); /* Debug */
+
+                            let regexpStr = /[A-Za-zА-Яа-яЁё.,\-_]/g;
+
+                                $(this)[0].value = $(this)[0].value.replace( regexpStr, '' );
+                            } );
+
+                            /* 0000000000000000000000000000 */
+                            
                         break;
                     
                         default:
@@ -493,7 +689,7 @@ function extern_leadsDistribution()
 
                     this.modal.progress( 50 );
 
-                    $.post( this.serverAddress + 'server/app/redirect.php?param=setSettings', { settings: JSON.stringify( this.widget.widgetSettings ) }, ( antwort ) => {
+                    $.post( this.serverAddress + 'server/app/redirect.php?param=setSettings&subdomain=' + AMOCRM.widgets.system.subdomain, { settings: JSON.stringify( this.widget.widgetSettings ) }, ( antwort ) => {
                         
                         console.log( 'Serverantwort << ' + antwort ); /* Debug */
                         
@@ -529,7 +725,7 @@ function extern_leadsDistribution()
 
                 console.log( this.name + ' << off' );
 
-                $.get( serverAddress + "server/app/redirect.php?param=destroy", function( Antwort ){
+                $.get( serverAddress + "server/app/redirect.php?param=destroy&subdomain=" + AMOCRM.widgets.system.subdomain, function( Antwort ){
                     console.log( Antwort );
                 });
 
@@ -640,14 +836,46 @@ function extern_leadsDistribution()
         ===================================================================
        */
 
-        getUsersList_bind_actions()
+        getUsersList_bind_actions( method )
         {
-            let usersList = $('input#leadsDist_user:checked');
             let users = [];
+            let usersList = null;
 
-            for (let i = 0; i < usersList.length; i++)
+            switch ( method )
             {
-                users[i] = usersList[i].getAttribute('data-id');
+
+                case 'even':
+
+                    usersList = $('input#leadsDist_user:checked');
+
+                    for (let i = 0; i < usersList.length; i++)
+                    {
+                        users[i] = usersList[i].getAttribute('data-id');
+                    }
+                    
+                break;
+
+                case 'percent':
+
+                    usersList = $('input.percent_wert');
+
+                    for (let i = 0; i < usersList.length; i++)
+                    {
+                        if ( Number( $( 'input.percent_wert' )[ i ].value ) )
+                        {
+                            let user = {
+                                id:  usersList[ i ].getAttribute( 'data-id' ),
+                                percentage: Number( $( 'input.percent_wert' )[ i ].value )
+                            };
+
+                            users.push( user );
+                        }
+                    }
+                    
+                break;
+            
+                default:
+                break;
             }
 
             return users;

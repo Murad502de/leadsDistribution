@@ -11,10 +11,10 @@ class Contact
     private $ContactData = null;
     private $requestData = null;
 
-    function __construct()
+    function __construct( $subdomain = null )
     {
         $this->ContactData = new Datenbank();
-        $this->requestData = $this->ContactData->getData('requestData');
+        $this->requestData = $this->ContactData->getData( 'requestData__' . $subdomain );
 
         $this->Http = new Http();
 

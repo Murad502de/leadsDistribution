@@ -131,17 +131,51 @@ li.advanced_settings > ul.advanced_settings {
   margin-left: 10px;
 }
 
-/*.advanced_settings_wrapper {
-  
-}*/
+.advanced_settings_wrapper {
+  position: relative;
+}
 
 .lead_wrapper {
-  margin-left: 45%;
-  margin-top: 30%;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .advanced_settings__button {
-  text-align: right;
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 /* advancedSettings */
+
+/* Warnungsmodalfenster */
+
+.dist_warnung__wrapper {
+  display: flex;
+}
+
+/*
+.dist_warnung_logo__wrapper {
+}
+*/
+
+.dist_warnung__container {
+  margin-left: 30px;
+}
+
+.dist_warnung__logo {
+  width: 50px;
+  height: 50px;
+}
+
+.dist_warnung__title {
+  font-weight: bold;
+}
+
+.dist_warnung__message {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+/* Warnungsmodalfenster */
