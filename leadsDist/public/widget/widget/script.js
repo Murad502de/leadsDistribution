@@ -4,7 +4,7 @@ define([ 'jquery', 'underscore', 'twigjs', 'lib/components/base/modal' ], functi
     let self = this;
 
     this.name = "leadsDist";
-    this.serverAddress = "https://hub.integrat.pro/Murad/" + this.name + "/public";
+    this.serverAddress = "https://hub.integrat.pro/Murad/leadsDistribution/" + this.name + "/public";
 
     this.modalMessage = {
 

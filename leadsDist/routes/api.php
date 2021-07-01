@@ -26,4 +26,4 @@ Route::get( '/getSettings', [ SettingsController::class, 'get' ] );
 Route::post( '/setSettings', [ SettingsController::class, 'set' ] );
 
 // target logic of app
-Route::get( '/distribution', [ DistributionController::class, 'exec' ] );
+Route::post( '/distribution', [ DistributionController::class, 'exec' ] );
