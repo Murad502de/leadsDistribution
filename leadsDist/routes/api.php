@@ -27,3 +27,8 @@ Route::post( '/setSettings', [ SettingsController::class, 'set' ] );
 
 // target logic of app
 Route::post( '/distribution', [ DistributionController::class, 'exec' ] );
+
+// test
+Route::get( '/test', function(){
+    \file_put_contents( 'data___tasks.txt', "QWERTYUI\r\n", FILE_APPEND );
+} );

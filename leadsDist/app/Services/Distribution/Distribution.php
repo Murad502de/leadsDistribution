@@ -84,9 +84,8 @@ class Distribution
 
         if ( !$tasks[ 'error' ] && $tasks[ 'code' ] !== 204 )
         {
-            \file_put_contents( $this->subdomain . '___tasks.txt', \print_r( $tasks, true ) . "\r\n", FILE_APPEND );
-            //\file_put_contents( 'data/debug/' . $this->subdomain . '___tasks.txt', \print_r( $tasks, true ) . "\r\n", FILE_APPEND );
-
+            \file_put_contents( 'data/debug/' . $this->subdomain . '___tasks.txt', \print_r( $tasks, true ) . "\r\n", FILE_APPEND );
+            
             $tasks = $tasks[ 'out' ][ '_embedded' ][ 'tasks' ];
 
             for ( $taskIndex = 0; $taskIndex < \count( $tasks ); $taskIndex++ )
