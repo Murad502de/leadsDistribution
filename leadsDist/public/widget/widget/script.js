@@ -6,6 +6,20 @@ define([ 'jquery', 'underscore', 'twigjs', 'lib/components/base/modal' ], functi
     this.name = "leadsDist";
     this.serverAddress = "https://hub.integrat.pro/Murad/leadsDistribution/" + this.name + "/public";
 
+    this.getTemplate = function ( template, params, callback ) {
+
+      params = ( typeof params == 'object' ) ? params : {};
+      template = template || '';
+
+      return this.render( {
+        href: '/templates/' + template + '.twig',
+        base_path: this.params.path,
+        v: this.get_version(),
+        load: callback
+      }, params );
+
+    };
+
     this.modalMessage = {
 
       modalWindow: null,
@@ -180,14 +194,6 @@ define([ 'jquery', 'underscore', 'twigjs', 'lib/components/base/modal' ], functi
         let startIndex = ( _this.datenSenden.counter - 1 ) * 50;
         let endBorder = startIndex + 50 <= exportData.leads.length  ? startIndex + 50  : exportData.leads.length;
 
-        /*
-        console.debug( 'startIndex:' ); // Debug
-        console.debug( startIndex ); // Debug
-
-        console.debug( 'endBorder:' ); // Debug
-        console.debug( endBorder ); // Debug
-        */
-
         let exportDataPart = {
           users: exportData.users,
           leads: [],
@@ -316,7 +322,6 @@ define([ 'jquery', 'underscore', 'twigjs', 'lib/components/base/modal' ], functi
                             _this.modalMessage.progress( 100 );
             
                             delete _this.datenSenden.counter;
-                            //_this.datenSenden.progress = 0;
             
                             return;
                           }
@@ -356,6 +361,88 @@ define([ 'jquery', 'underscore', 'twigjs', 'lib/components/base/modal' ], functi
 
     }
 
+    this.renderDistBlock = () => {
+
+
+      self.getTemplate(  // render usersListPercent
+
+        'distBlock', // a name our template
+
+        {}, // i don't know why // FIXME
+
+        ( template ) => { // our callback
+
+          self.distBlock = template.render( {
+            usersList: self.usersList
+          } );
+
+          // console.debug( self.distBlock );
+
+          self.render_template(
+            {
+              caption: {
+                class_name: "js-ac-caption leadsDist",
+                html: "",
+              },
+              body: "",
+              render: self.distBlock
+            }
+          );
+
+          self.callbacks.bind_actions( true );
+
+        }
+      );
+
+    }
+
+    this.renderUsersListPercent = () => {
+
+      self.getTemplate(  // render usersListPercent
+
+        'usersListPercent', // a name our template
+
+        {}, // i don't know why // FIXME
+
+        ( template ) => { // our callback
+
+          self.usersListPercent = template.render( {
+            users: AMOCRM.constant( "managers" ),
+            serverAddress: self.serverAddress
+          } );
+
+          // console.debug( self.usersListPercent );
+
+          self.renderDistBlock();
+        }
+      );
+
+    }
+
+    this.renderUsersListEven = () => {
+
+      self.getTemplate(  // render usersListEven
+
+        'usersListEven', // a name our template
+
+        {}, // i don't know why // FIXME
+
+        ( template ) => { // our callback
+
+          self.usersList = template.render( { users: AMOCRM.constant( "managers" ) } );
+
+          // console.debug( self.usersList );
+
+          self.renderUsersListPercent();
+        }
+      );
+
+    }
+
+    this.renderDistPanel = () => {
+      self.renderUsersListEven();
+    }
+
     this.callbacks = {
 
       render: function () {
@@ -368,84 +455,16 @@ define([ 'jquery', 'underscore', 'twigjs', 'lib/components/base/modal' ], functi
         {
           console.debug( self.name + " << render für llist" ); // Debug
 
-          //let lang = self.i18n( "userLang" );
-          let w_code = self.get_settings().widget_code; //в данном случае w_code='new-widget'
-
-          console.debug( "w_code" ); // Debug
-          console.debug( w_code ); // Debug
-
           if ( typeof AMOCRM.data.current_card != "undefined" )
           {
               if ( AMOCRM.data.current_card.id == 0 )
               {
-                  // не рендерить на contacts/add || leads/add
-                  return false;
+                // не рендерить на contacts/add || leads/add
+                return false;
               }
           }
 
-          self.users = AMOCRM.constant( "managers" );
-          self.usersList = "";
-          self.usersListPercent = "";
-
-          for ( let user in self.users )
-          {
-            if ( self.users[ user ][ "active" ] )
-            {
-            self.usersList += `
-              <div class="leadsDist_currentUser_wrapper">
-                <label class="od_control-checkbox">
-                  <div class="od_control-checkbox__body">
-                    <input id="leadsDist_user" class="leadsDist_user_input" type="checkbox" data-id="${user}">
-                    <span class="leadsDist_headList__span od_control-checkbox__helper leadsDist_user_checkbox"></span>
-                    <span class="leadsDist_user_name">${self.users[user]["title"]}</span>
-                  </div>
-                </label>
-              </div>
-            `;
-
-            self.usersListPercent += '\
-                <div class = "percent_user">\
-                  <div data-id="' + user + '" class = "leadsDist_left">' + self.users[ user ][ "title" ] + '</div>\
-                  <div data-id="' + user + '" class = "percent leadsDist_right">\
-                    <span class = "per_zeichen">\
-                      <img data-id="' + user + '" class = "per_zeichen__svg minus" src = "' + self.serverAddress + '/widget/source/svg/minus.svg" alt = "минус">\
-                    </span>\
-                    <input data-id="' + user + '" class = "percent_wert" type = "text" size = "1" value = "0">%\
-                    <span class = "per_zeichen">\
-                      <img data-id="' + user + '" class = "per_zeichen__svg plus" src = "' + self.serverAddress + '/widget/source/svg/plus.svg" alt = "плюс">\
-                    </span>\
-                  </div>\
-                </div>';
-            }
-          }
-
-          self.render_template(
-            {
-              caption: {
-                  class_name: "js-ac-caption",
-                  html: "",
-              },
-              body: "",
-              render:
-              '\
-                  <div class="ac-form">\
-                  <div id="js-ac-sub-lists-container">\
-                      <p>Выберите метод распределения</p>\
-                      <select id="leadsDist_method">\
-                          <option value = "even">Равномерное распределение</option>\
-                          <option value = "percent">Процентное соотношение</option>\
-                      </select>\
-                  </div>\
-                  <div id="js-ac-sub-subs-container">\
-                      ' + self.usersList + '\
-                  </div>\
-                  <div class="ac-form-button ac_sub">Выполнить распределение</div>\
-                  </div>\
-                  <div class="ac-already-subs"></div>\
-                  <link type="text/css" rel="stylesheet" href="' + self.settings.path + '/style.css?v=' + self.settings.version + '">\
-              '
-            }
-          );
+          self.renderDistPanel();
         }
 
         if ( self.system().area == "advanced_settings" )
@@ -579,184 +598,82 @@ define([ 'jquery', 'underscore', 'twigjs', 'lib/components/base/modal' ], functi
       },
 
       init: function () {
+
         console.debug( self.name + " << init" );
+
+        if ( !$( 'link[href="' + self.get_settings().path + '/style.css?v=' + self.get_settings().version +'"' ).length )
+        {
+          //  Подключаем файл style.css передавая в качестве параметра версию виджета
+          $( "head" ).append( '<link type="text/css" rel="stylesheet" href="' + self.get_settings().path + '/style.css?v=' + self.get_settings().version + '">' );
+        }
+
         return true;
       },
 
-      bind_actions: function () {
+      bind_actions: function ( erlaubt = false ) {
 
-        console.debug( self.name + " << bind_actions" ); // Debug
-
-        if ( self.system().area == "llist" )
+        if ( erlaubt )
         {
-          console.debug( self.name + " << bind_actions für llist" ); // Debug
+          console.debug( self.name + " << bind_actions" ); // Debug
 
-          // Verteilung starten
-          $( ".ac-form-button" ).on( "click", function() {
-  
-              let exportData = {
-                  users: [],
-                  leads: [],
-                  method: "",
-                  subdomain: AMOCRM.widgets.system.subdomain,
-              };
-  
-              if ( $( "select#leadsDist_method" ).val() === "even" )
-              {
-                /* der Teil gleichmäßiger Verteilung */
+          if ( self.system().area == "llist" )
+          {
+            console.debug( self.name + " << bind_actions für llist" ); // Debug
 
-                console.debug( self.name + " << Выполнение распределения: even" ); // Debug
-  
-                // Information sammeln
-                exportData.users = self.getUsersList_bind_actions( "even" );
-                exportData.method = "even";
-                exportData.leads = self.leadsList;
-  
-                console.debug( "exportData before:" ); // Debug
-                console.debug( exportData ); // Debug
-  
-                if ( Number( exportData.users.length ) )
-                {
-                  console.debug( "gleichmäßige Verteilung kann ausgeführt werden" ); // Debug
-  
-                  let leads_newExportList = [];
-  
-                  for ( let leadIndex = 0, userIndex = 0; leadIndex < exportData.leads.length; leadIndex++, userIndex++ )
-                  {
-                    if ( userIndex >= exportData.users.length ) userIndex = 0;
+            // Verteilung starten
+            $( ".ac-form-button" ).on( "click", function(){
     
-                    let currentLead = {
-                      id: exportData.leads[ leadIndex ].id,
-                      newRespUserId: exportData.users[ userIndex ],
-                    };
+                let exportData = {
+                    users: [],
+                    leads: [],
+                    method: "",
+                    subdomain: AMOCRM.widgets.system.subdomain,
+                };
     
-                    leads_newExportList.push( currentLead );
-                  }
-  
-                  exportData.leads = leads_newExportList;
-  
-                  console.debug( "exportData after:" ); /* Debug */
-                  console.debug( exportData ); /* Debug */
-  
-                  self.datenSenden( self, exportData ); // Information an den Server senden
-                }
-                else
+                if ( $( "select#leadsDist_method" ).val() === "even" )
                 {
-                  console.debug( "gleichmäßige Verteilung kann NICHT ausgeführt werden" ); // Debug
-  
-                  let data = `
-                    <div class = "dist_warnung__wrapper">
-                        <div class = "dist_warnung_logo__wrapper">
-                            <img class = "dist_warnung__logo" src = "${self.serverAddress}/widget/source/svg/warnung_schild.svg">
-                        </div>
-                        <div class = "dist_warnung__container">
-                            <h3 class = "dist_warnung__title">Распределение не может быть выполнено</h3>
-                            <div class = "dist_warnung__message">
-                                <p>Не выбран ни один пользователь</p>
-                            </div>
-                            <button id = "close_modal_dist" class = "button-input js-modal-accept js-button-with-loader modal-body__actions__save js-progress-cont-to-work">
-                                <span class = "dist_button-input-inner">
-                                    <span class = "dist_button-input-inner_text">Продолжить работу</span>
-                                </span>
-                            </button>
-                        </div>
-                    </div>
-                  `;
-  
-                  self.modalMessage.show( data, true );
-                  //modal.showCloseButton();
-                }
-              }
-              else if ( $( "select#leadsDist_method" ).val() === "percent" )
-              {
-                /* Prozentverteilungsteil */
+                  /* der Teil gleichmäßiger Verteilung */
 
-                console.debug( self.name + " << Выполнение распределения: percent" ); // Debug
+                  console.debug( self.name + " << Выполнение распределения: even" ); // Debug
     
-                let ProzentSumme = 0;
-                let ProzentInputs = $( "input.percent_wert" );
-    
-                for ( let prozentInputIndex = 0; prozentInputIndex < ProzentInputs.length; prozentInputIndex++ )
-                {
-                  ProzentSumme += Number( ProzentInputs[ prozentInputIndex ].value );
-                }
-
-                if ( Number( ProzentSumme ) === 100 )
-                {
-                  console.debug( "sum " + ProzentSumme ); // Debug
-                  console.debug( "Verteilung kann ausgeführt werden" ); // Debug
-  
                   // Information sammeln
-                  exportData.users = self.getUsersList_bind_actions( "percent" );
-                  exportData.method = "percent";
+                  exportData.users = self.getUsersList_bind_actions( "even" );
+                  exportData.method = "even";
                   exportData.leads = self.leadsList;
-  
-                  console.debug( "exportData befor:" ); // Debug
+    
+                  console.debug( "exportData before:" ); // Debug
                   console.debug( exportData ); // Debug
-  
-                  // exportierende Daten vorbereiten >>
-                  let leads_newExportList = [];
-  
-                  let total = exportData.leads.length;
-                  let rest = total;
-                  let usersTarget = [];
-  
-                  for ( let userIndex = 0; userIndex < exportData.users.length && rest > 0; userIndex++ )
-                  {
-                    let currentUserPercentage = exportData.users[ userIndex ][ "percentage" ];
-                    let numberOfLeads = ( total / 100 ) * currentUserPercentage;
-                    let fractionalPart = ( numberOfLeads - Math.floor( numberOfLeads ) ) * 10;
-
-                    if ( fractionalPart >= 5 )
-                    {
-                        if ( Math.ceil( numberOfLeads ) <= rest ) numberOfLeads = Math.ceil( numberOfLeads );
-                        else numberOfLeads = Math.floor( numberOfLeads );
-                    }
-                    else
-                    {
-                      if ( userIndex == exportData.users.length - 1 ) numberOfLeads = rest;
-                      else numberOfLeads = Math.floor( numberOfLeads );
-                    }
-
-                    rest -= numberOfLeads;
     
-                    let userTarget = exportData.users[ userIndex ];
-    
-                    userTarget[ "numberOfLeads" ] = Number( numberOfLeads );
-                    usersTarget.push( userTarget );
-                  }
-  
-                  console.debug("usersTarget:"); // Debug
-                  console.debug(usersTarget); // Debug
-  
-                  for ( let targetUserIndex = 0, leadIndex = 0; targetUserIndex < usersTarget.length; targetUserIndex++ )
+                  if ( Number( exportData.users.length ) )
                   {
-                    for ( let numberOfLeadsIndex = 0; numberOfLeadsIndex < usersTarget[ targetUserIndex ][ "numberOfLeads" ]; numberOfLeadsIndex++, leadIndex++ )
+                    console.debug( "gleichmäßige Verteilung kann ausgeführt werden" ); // Debug
+    
+                    let leads_newExportList = [];
+    
+                    for ( let leadIndex = 0, userIndex = 0; leadIndex < exportData.leads.length; leadIndex++, userIndex++ )
                     {
+                      if ( userIndex >= exportData.users.length ) userIndex = 0;
+      
                       let currentLead = {
                         id: exportData.leads[ leadIndex ].id,
-                        newRespUserId: usersTarget[ targetUserIndex ][ "id" ],
+                        newRespUserId: exportData.users[ userIndex ],
                       };
-  
+      
                       leads_newExportList.push( currentLead );
                     }
+    
+                    exportData.leads = leads_newExportList;
+    
+                    console.debug( "exportData after:" ); /* Debug */
+                    console.debug( exportData ); /* Debug */
+    
+                    self.datenSenden( self, exportData ); // Information an den Server senden
                   }
-  
-                  exportData.leads = leads_newExportList;
-  
-                  // << exportierende Daten vorbereiten
-  
-                  console.debug( "exportData after:" ); /* Debug */
-                  console.debug( exportData ); /* Debug */
-  
-                  self.datenSenden( self, exportData ); //
-                }
-                else
-                {
-                  console.debug( "sum " + ProzentSumme ); /* Debug */
-                  console.debug( "Verteilung kann NICHT ausgeführt werden" ); /* Debug */
-  
-                  let data = `
+                  else
+                  {
+                    console.debug( "gleichmäßige Verteilung kann NICHT ausgeführt werden" ); // Debug
+    
+                    let data = `
                       <div class = "dist_warnung__wrapper">
                           <div class = "dist_warnung_logo__wrapper">
                               <img class = "dist_warnung__logo" src = "${self.serverAddress}/widget/source/svg/warnung_schild.svg">
@@ -764,7 +681,7 @@ define([ 'jquery', 'underscore', 'twigjs', 'lib/components/base/modal' ], functi
                           <div class = "dist_warnung__container">
                               <h3 class = "dist_warnung__title">Распределение не может быть выполнено</h3>
                               <div class = "dist_warnung__message">
-                                  <p>Процентная сумма должна быть всегда равна 100%</p>
+                                  <p>Не выбран ни один пользователь</p>
                               </div>
                               <button id = "close_modal_dist" class = "button-input js-modal-accept js-button-with-loader modal-body__actions__save js-progress-cont-to-work">
                                   <span class = "dist_button-input-inner">
@@ -773,123 +690,256 @@ define([ 'jquery', 'underscore', 'twigjs', 'lib/components/base/modal' ], functi
                               </button>
                           </div>
                       </div>
-                  `;
+                    `;
     
-                  self.modalMessage.show( data, true );
-                  //modal.showCloseButton();
+                    self.modalMessage.show( data, true );
+                    //modal.showCloseButton();
+                  }
                 }
-              }
-          });
-
-            // Verteilung auswählen
-            $( "select#leadsDist_method" ).on( "change", function( e ) {
-    
-                let leadsDistMethod = this.value;
-    
-                switch ( leadsDistMethod )
+                else if ( $( "select#leadsDist_method" ).val() === "percent" )
                 {
-                    case "even":
-        
-                      console.debug( "even" ); // Debug
+                  /* Prozentverteilungsteil */
 
-                      $( "div#js-ac-sub-subs-container" ).children().remove();
-                      $( "div#js-ac-sub-subs-container" ).append( self.usersList );
+                  console.debug( self.name + " << Выполнение распределения: percent" ); // Debug
+      
+                  let ProzentSumme = 0;
+                  let ProzentInputs = $( "input.percent_wert" );
+      
+                  for ( let prozentInputIndex = 0; prozentInputIndex < ProzentInputs.length; prozentInputIndex++ )
+                  {
+                    ProzentSumme += Number( ProzentInputs[ prozentInputIndex ].value );
+                  }
 
-                    break;
+                  if ( Number( ProzentSumme ) === 100 )
+                  {
+                    console.debug( "sum " + ProzentSumme ); // Debug
+                    console.debug( "Verteilung kann ausgeführt werden" ); // Debug
     
-                    case "percent":
-        
-                        console.debug( "percent" ); // Debug
-        
-                        let prozentRest = 100;
-        
-                        $( "div#js-ac-sub-subs-container" ).children().remove();
-                        $( "div#js-ac-sub-subs-container" ).append( self.usersListPercent );
-        
-                        $( "img.plus" ).on( "click", ( event ) => {
-        
-                        let dataId = event.target.getAttribute( "data-id" );
-                        let input = $( 'input[data-id="' + dataId + '"]' );
-                        let value = Number( input[ 0 ].value );
-        
-                        if ( prozentRest > 0 )
-                        {
-                          prozentRest -= 5;
-                          input[ 0 ].value = value + 5;
-                        }
-                        } );
-        
-                        $( "img.minus" ).on( "click", ( event ) => {
+                    // Information sammeln
+                    exportData.users = self.getUsersList_bind_actions( "percent" );
+                    exportData.method = "percent";
+                    exportData.leads = self.leadsList;
+    
+                    console.debug( "exportData befor:" ); // Debug
+                    console.debug( exportData ); // Debug
+    
+                    // exportierende Daten vorbereiten >>
+                    let leads_newExportList = [];
+    
+                    let total = exportData.leads.length;
+                    let rest = total;
+                    let usersTarget = [];
+    
+                    for ( let userIndex = 0; userIndex < exportData.users.length && rest > 0; userIndex++ )
+                    {
+                      let currentUserPercentage = exportData.users[ userIndex ][ "percentage" ];
+                      let numberOfLeads = ( total / 100 ) * currentUserPercentage;
+                      let fractionalPart = ( numberOfLeads - Math.floor( numberOfLeads ) ) * 10;
 
+                      if ( fractionalPart >= 5 )
+                      {
+                          if ( Math.ceil( numberOfLeads ) <= rest ) numberOfLeads = Math.ceil( numberOfLeads );
+                          else numberOfLeads = Math.floor( numberOfLeads );
+                      }
+                      else
+                      {
+                        if ( userIndex == exportData.users.length - 1 ) numberOfLeads = rest;
+                        else numberOfLeads = Math.floor( numberOfLeads );
+                      }
+
+                      rest -= numberOfLeads;
+      
+                      let userTarget = exportData.users[ userIndex ];
+      
+                      userTarget[ "numberOfLeads" ] = Number( numberOfLeads );
+                      usersTarget.push( userTarget );
+                    }
+    
+                    console.debug("usersTarget:"); // Debug
+                    console.debug(usersTarget); // Debug
+    
+                    for ( let targetUserIndex = 0, leadIndex = 0; targetUserIndex < usersTarget.length; targetUserIndex++ )
+                    {
+                      for ( let numberOfLeadsIndex = 0; numberOfLeadsIndex < usersTarget[ targetUserIndex ][ "numberOfLeads" ]; numberOfLeadsIndex++, leadIndex++ )
+                      {
+                        let currentLead = {
+                          id: exportData.leads[ leadIndex ].id,
+                          newRespUserId: usersTarget[ targetUserIndex ][ "id" ],
+                        };
+    
+                        leads_newExportList.push( currentLead );
+                      }
+                    }
+    
+                    exportData.leads = leads_newExportList;
+    
+                    // << exportierende Daten vorbereiten
+    
+                    console.debug( "exportData after:" ); /* Debug */
+                    console.debug( exportData ); /* Debug */
+    
+                    self.datenSenden( self, exportData ); //
+                  }
+                  else
+                  {
+                    console.debug( "sum " + ProzentSumme ); /* Debug */
+                    console.debug( "Verteilung kann NICHT ausgeführt werden" ); /* Debug */
+    
+                    let data = `
+                        <div class = "dist_warnung__wrapper">
+                            <div class = "dist_warnung_logo__wrapper">
+                                <img class = "dist_warnung__logo" src = "${self.serverAddress}/widget/source/svg/warnung_schild.svg">
+                            </div>
+                            <div class = "dist_warnung__container">
+                                <h3 class = "dist_warnung__title">Распределение не может быть выполнено</h3>
+                                <div class = "dist_warnung__message">
+                                    <p>Процентная сумма должна быть всегда равна 100%</p>
+                                </div>
+                                <button id = "close_modal_dist" class = "button-input js-modal-accept js-button-with-loader modal-body__actions__save js-progress-cont-to-work">
+                                    <span class = "dist_button-input-inner">
+                                        <span class = "dist_button-input-inner_text">Продолжить работу</span>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+      
+                    self.modalMessage.show( data, true );
+                    //modal.showCloseButton();
+                  }
+                }
+            });
+
+              // Verteilung auswählen
+              $( "select#leadsDist_method" ).on( "change", function( e ) {
+      
+                  let leadsDistMethod = this.value;
+      
+                  switch ( leadsDistMethod )
+                  {
+                      case "even":
+          
+                        console.debug( "even" ); // Debug
+
+                        $( "div#js-ac-sub-subs-container" ).children().remove();
+                        $( "div#js-ac-sub-subs-container" ).append( self.usersList );
+
+                      break;
+      
+                      case "percent":
+          
+                          console.debug( "percent" ); // Debug
+          
+                          let prozentRest = 100;
+          
+                          $( "div#js-ac-sub-subs-container" ).children().remove();
+                          $( "div#js-ac-sub-subs-container" ).append( self.usersListPercent );
+          
+                          $( "img.plus" ).on( "click", ( event ) => {
+          
                           let dataId = event.target.getAttribute( "data-id" );
                           let input = $( 'input[data-id="' + dataId + '"]' );
                           let value = Number( input[ 0 ].value );
           
-                          if ( value >= 5 )
+                          if ( prozentRest > 0 )
                           {
-                            prozentRest += 5;
-                            input[ 0 ].value = value - 5;
+                            prozentRest -= 5;
+                            input[ 0 ].value = value + 5;
                           }
-                          else input[ 0 ].value = 0;
+                          } );
+          
+                          $( "img.minus" ).on( "click", ( event ) => {
 
-                        } );
-        
-                        // 0000000000000000000000000000
-        
-                        let oldValue = "";
-        
-                        $( "input.percent_wert" ).on( "focus", function () {
-        
-                          console.debug( "onfocus" ); // Debug
-                          console.debug( $(this)[0].value ); // Debug
+                            let dataId = event.target.getAttribute( "data-id" );
+                            let input = $( 'input[data-id="' + dataId + '"]' );
+                            let value = Number( input[ 0 ].value );
+            
+                            if ( value >= 5 )
+                            {
+                              prozentRest += 5;
+                              input[ 0 ].value = value - 5;
+                            }
+                            else input[ 0 ].value = 0;
+
+                          } );
           
-                          oldValue = $( this )[ 0 ].value;
-                          console.debug( "oldValue " + oldValue ); // Debug
+                          // 0000000000000000000000000000
           
-                          $( this )[ 0 ].value = "";
-        
-                        } );
-        
-                        $( "input.percent_wert" ).on( "blur", function () {
-        
-                          console.debug( "onblur" ); // Debug
-                          console.debug( $( this )[ 0 ].value ); // Debug
+                          let oldValue = "";
           
-                          if ( $( this )[ 0 ].value == "" )
-                          {
-                            $( this )[ 0 ].value = oldValue;
-                          }
-        
-                        } );
-        
-                        $( "input.percent_wert" ).on( "input", function () {
-        
-                          console.debug( "input läuft" ); // Debug
-                          console.debug( $( this ) ); // Debug
+                          $( "input.percent_wert" ).on( "focus", function () {
           
-                          let regexpStr = /[A-Za-zА-Яа-яЁё.,\-_]/g;
+                            console.debug( "onfocus" ); // Debug
+                            console.debug( $(this)[0].value ); // Debug
+            
+                            oldValue = $( this )[ 0 ].value;
+                            console.debug( "oldValue " + oldValue ); // Debug
+            
+                            $( this )[ 0 ].value = "";
           
-                          $( this )[ 0 ].value = $( this )[ 0 ].value.replace( regexpStr, "" );
-        
-                        } );
-        
-                        // 0000000000000000000000000000
-        
-                    break;
+                          } );
+          
+                          $( "input.percent_wert" ).on( "blur", function () {
+          
+                            console.debug( "onblur" ); // Debug
+                            console.debug( $( this )[ 0 ].value ); // Debug
+            
+                            if ( $( this )[ 0 ].value == "" )
+                            {
+                              $( this )[ 0 ].value = oldValue;
+                            }
+          
+                          } );
+          
+                          $( "input.percent_wert" ).on( "input", function () {
+          
+                            console.debug( "input läuft" ); // Debug
+                            console.debug( $( this ) ); // Debug
+            
+                            let regexpStr = /[A-Za-zА-Яа-яЁё.,\-_]/g;
+            
+                            $( this )[ 0 ].value = $( this )[ 0 ].value.replace( regexpStr, "" );
+          
+                          } );
+          
+                          // 0000000000000000000000000000
+          
+                      break;
+      
+                      default:
+                        console.debug( "clear" ); // Debug
+                      break;
+                  }
+              });
+          }
+      
+          if ( self.system().area == "advanced_settings" )
+          {
+            console.debug( self.name + " << bind_actions für advanced_settings" );
+
+            $( ".tasks_input" ).change( function( event, trigger = { triggered: false } ) {
     
-                    default:
-                      console.debug( "clear" ); // Debug
-                    break;
+                if ( trigger.triggered )
+                {
+                  console.debug( trigger ); /* Debug */
+                  console.debug( $(this)[0].checked ); /* Debug */
+      
+                  $( this )[ 0 ].checked = !$( this )[ 0 ].checked;
+      
+                  return;
                 }
-            });
-        }
     
-        if ( self.system().area == "advanced_settings" )
-        {
-          console.debug( self.name + " << bind_actions für advanced_settings" );
+                $( ".advanced_settings__button_inner" ).addClass( "button-input_blue" );
+                $( ".advanced_settings__button_inner" ).removeClass( "button-input-disabled" );
+    
+            });
 
-          $( ".tasks_input" ).change( function( event, trigger = { triggered: false } ) {
-  
+            $( ".list_input" ).change( function( event, trigger = { triggered: false } ) {
+    
+              let listInput = $( this ).parent().parent().parent().parent()[ 0 ].querySelector( "ul" );
+
+              listInput.hidden = !listInput.hidden;
+
               if ( trigger.triggered )
               {
                 console.debug( trigger ); /* Debug */
@@ -899,100 +949,80 @@ define([ 'jquery', 'underscore', 'twigjs', 'lib/components/base/modal' ], functi
     
                 return;
               }
-  
+
               $( ".advanced_settings__button_inner" ).addClass( "button-input_blue" );
               $( ".advanced_settings__button_inner" ).removeClass( "button-input-disabled" );
-  
-          });
+    
+            });
 
-          $( ".list_input" ).change( function( event, trigger = { triggered: false } ) {
-  
-            let listInput = $( this ).parent().parent().parent().parent()[ 0 ].querySelector( "ul" );
+            // advanced_settings__button_inner
+            // button-input-disabled
+            // button-input_blue
 
-            listInput.hidden = !listInput.hidden;
+              $(".advanced_settings__button").on( "click", ".button-input_blue", () => {
+      
+                  console.debug( "Einstellungen senden" ); // Debug
+      
+                  let data = `
+                    <h2>Сохранение настроек</h2>
+                    <div class = "dist_progress_inner">
+                        <div class = "dist_progress_status">
+                            <div class = "dist_progress_filter"></div>
+                            <span class = "dist_progress_status-text">0%</span>
+                        </div>
+                        <div class = "dist_progress_bar-wrapper">
+                            <div class = "dist_progress_bar"></div>
+                        </div>
+                        <div class = "dist_modal-body_actions">
+                            <button id = "close_modal_dist" class = "button-input js-modal-accept js-button-with-loader modal-body__actions__save js-progress-cont-to-work">
+                                <span class = "dist_button-input-inner">
+                                    <span class = "dist_button-input-inner_text">Продолжить работу</span>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                  `;
+      
+                  self.modalMessage.show( data );
+      
+                  $( ".advanced_settings__button_inner" ).addClass( "button-input-disabled" );
+                  $( ".advanced_settings__button_inner" ).removeClass( "button-input_blue" );
+      
+                  self.widgetSettings.tasks.value = $( ".lead_tasks__inner" )[ 0 ].checked;
+      
+                  self.widgetSettings.contacts.value = $( ".lead_contacts_list_input" )[ 0 ].checked;
+                  self.widgetSettings.contacts.tasks.value = $( ".lead_contacts_tasks__inner" )[ 0 ].checked;
+                  self.widgetSettings.contacts.companies.value = $( ".lead_contacts_companies_list_input" )[ 0 ].checked;
+                  self.widgetSettings.contacts.companies.tasks.value = $( ".lead_contacts_companies_tasks__inner" )[ 0 ].checked;
+      
+                  self.modalMessage.progress( 25 );
+      
+                  self.widgetSettings.companies.value = $( ".lead_companies_list_input" )[ 0 ].checked;
+                  self.widgetSettings.companies.tasks.value = $( ".lead_companies_tasks__inner" )[ 0 ].checked;
+      
+                  console.debug( self.widgetSettings );
+      
+                  self.modalMessage.progress( 50 );
+      
+                  $.post(
 
-            if ( trigger.triggered )
-            {
-              console.debug( trigger ); /* Debug */
-              console.debug( $(this)[0].checked ); /* Debug */
-  
-              $( this )[ 0 ].checked = !$( this )[ 0 ].checked;
-  
-              return;
-            }
-
-            $( ".advanced_settings__button_inner" ).addClass( "button-input_blue" );
-            $( ".advanced_settings__button_inner" ).removeClass( "button-input-disabled" );
-  
-          });
-
-          // advanced_settings__button_inner
-          // button-input-disabled
-          // button-input_blue
-
-            $(".advanced_settings__button").on( "click", ".button-input_blue", () => {
+                    self.serverAddress + "/api/setSettings?subdomain=" + AMOCRM.widgets.system.subdomain,
     
-                console.debug( "Einstellungen senden" ); // Debug
+                    {
+                      settings: JSON.stringify( self.widgetSettings )
+                    },
     
-                let data = `
-                  <h2>Сохранение настроек</h2>
-                  <div class = "dist_progress_inner">
-                      <div class = "dist_progress_status">
-                          <div class = "dist_progress_filter"></div>
-                          <span class = "dist_progress_status-text">0%</span>
-                      </div>
-                      <div class = "dist_progress_bar-wrapper">
-                          <div class = "dist_progress_bar"></div>
-                      </div>
-                      <div class = "dist_modal-body_actions">
-                          <button id = "close_modal_dist" class = "button-input js-modal-accept js-button-with-loader modal-body__actions__save js-progress-cont-to-work">
-                              <span class = "dist_button-input-inner">
-                                  <span class = "dist_button-input-inner_text">Продолжить работу</span>
-                              </span>
-                          </button>
-                      </div>
-                  </div>
-                `;
+                    ( antwort ) => {
     
-                self.modalMessage.show( data );
+                      console.debug( "Serverantwort << " + antwort ); // Debug
+      
+                      self.modalMessage.progress( 100 );
+                    },
     
-                $( ".advanced_settings__button_inner" ).addClass( "button-input-disabled" );
-                $( ".advanced_settings__button_inner" ).removeClass( "button-input_blue" );
-    
-                self.widgetSettings.tasks.value = $( ".lead_tasks__inner" )[ 0 ].checked;
-    
-                self.widgetSettings.contacts.value = $( ".lead_contacts_list_input" )[ 0 ].checked;
-                self.widgetSettings.contacts.tasks.value = $( ".lead_contacts_tasks__inner" )[ 0 ].checked;
-                self.widgetSettings.contacts.companies.value = $( ".lead_contacts_companies_list_input" )[ 0 ].checked;
-                self.widgetSettings.contacts.companies.tasks.value = $( ".lead_contacts_companies_tasks__inner" )[ 0 ].checked;
-    
-                self.modalMessage.progress( 25 );
-    
-                self.widgetSettings.companies.value = $( ".lead_companies_list_input" )[ 0 ].checked;
-                self.widgetSettings.companies.tasks.value = $( ".lead_companies_tasks__inner" )[ 0 ].checked;
-    
-                console.debug( self.widgetSettings );
-    
-                self.modalMessage.progress( 50 );
-    
-                $.post(
-
-                  self.serverAddress + "/api/setSettings?subdomain=" + AMOCRM.widgets.system.subdomain,
-  
-                  {
-                    settings: JSON.stringify( self.widgetSettings )
-                  },
-  
-                  ( antwort ) => {
-  
-                    console.debug( "Serverantwort << " + antwort ); // Debug
-    
-                    self.modalMessage.progress( 100 );
-                  },
-  
-                  "json"
-                );
-            } );
+                    "json"
+                  );
+              } );
+          }
         }
 
         return true;

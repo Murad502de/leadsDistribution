@@ -1,0 +1,18 @@
+{% for user in users %}
+    {% if user.active %}
+        <div class = "percent_user">
+            <div data-id="{{ user.id }}" class = "leadsDist_left">
+                {{ user.title }}
+            </div>
+            <div data-id="{{ user.id }}" class = "percent leadsDist_right">
+                <span class = "per_zeichen">
+                    <img data-id="{{ user.id }}" class = "per_zeichen__svg minus" src = "{{ serverAddress }}/widget/source/svg/minus.svg" alt = "минус">
+                </span>
+                <input data-id="{{ user.id }}" class = "percent_wert" type = "text" size = "1" value = "0">%
+                <span class = "per_zeichen">
+                    <img data-id="{{ user.id }}" class = "per_zeichen__svg plus" src = "{{ serverAddress }}/widget/source/svg/plus.svg" alt = "плюс">
+                </span>
+            </div>
+        </div>
+    {% endif %}
+{% endfor %}

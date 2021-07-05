@@ -1,0 +1,15 @@
+{% for user in users %}
+    {% if user.active %}
+        <div class="leadsDist_currentUser_wrapper">
+            <label class="od_control-checkbox">
+                <div class="od_control-checkbox__body">
+                    <input id="leadsDist_user" class="leadsDist_user_input" type="checkbox" data-id="{{ user.id }}">
+                    <span class="leadsDist_headList__span od_control-checkbox__helper leadsDist_user_checkbox"></span>
+                    <span class="leadsDist_user_name">
+                        {{ user.title }}
+                    </span>
+                </div>
+            </label>
+        </div>
+    {% endif %}
+{% endfor %}

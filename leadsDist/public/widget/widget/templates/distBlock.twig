@@ -1,0 +1,22 @@
+<div class="ac-form">
+    <div id="js-ac-sub-lists-container">
+        <p>
+            Выберите метод распределения
+        </p>
+        <select id="leadsDist_method">
+            <option value = "even">
+                Равномерное распределение
+            </option>
+            <option value = "percent">
+                Процентное соотношение
+            </option>
+        </select>
+    </div>
+    <div id="js-ac-sub-subs-container">
+        {{ usersList }}
+    </div>
+    <div class="ac-form-button ac_sub">
+        Выполнить распределение
+    </div>
+</div>
+<div class="ac-already-subs"></div>
