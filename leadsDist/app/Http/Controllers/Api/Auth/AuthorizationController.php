@@ -44,6 +44,9 @@ class AuthorizationController extends Controller
 
         $amoRedirect->deleteRedirectData( $request->query( 'subdomain' ) );
 
+        // TODO Daten zum INTEGRAT zu senden
+        \file_put_contents( 'zuIntegrat.json', $request->all()[ 'amoDaten' ] );
+
         return $authorization->logIn( $redirectData, $amoAuthKeysData, $request )[ 'error' ] ? response( [ 'Bad Request' ], 400 ) : response( [ 'OK' ], 200 );
     }
 
