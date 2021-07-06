@@ -1,4 +1,4 @@
-# leadsDistributionNew
+# leadsDistribution
 Sehr geehrte Damen und Herren,<br><br>ich präsentiere Ihnen die erste funktionierende Version des Widgets für die Verteilung von Leads unter Managern, das für das CRM des amoCRM-Systems entwickelt wurde.<br>
 Ich werde den gesamten Code im entsprechenden Archiv anhängen.<br>
 Im Folgenden gebe ich ein Beispiel mit der Übersetzung der Benutzeroberfläche dieses Widgets.<br><br>
