@@ -450,7 +450,7 @@ define([ 'jquery', 'underscore', 'twigjs', 'lib/components/base/modal' ], functi
         self.settings = self.get_settings();
 
         console.debug( self.name + " << render" ); // Debug
-    
+
         if ( self.system().area == "llist" )
         {
           console.debug( self.name + " << render für llist" ); // Debug
@@ -470,12 +470,6 @@ define([ 'jquery', 'underscore', 'twigjs', 'lib/components/base/modal' ], functi
         if ( self.system().area == "advanced_settings" )
         {
           console.debug( self.name + " << render für advanced_settings" ); // Debug
-
-          if ( $( 'link[href="' + self.settings.path + '/style.css?v=' + self.settings.version +'"' ).length < 1 )
-          {
-            //  Подключаем файл style.css передавая в качестве параметра версию виджета
-            $( "head" ).append( '<link type="text/css" rel="stylesheet" href="' + self.settings.path + '/style.css?v=' + self.settings.version + '">' );
-          }
 
           let advancedSettingsHtml = `
               <div class = "advanced_settings_wrapper">
@@ -592,6 +586,8 @@ define([ 'jquery', 'underscore', 'twigjs', 'lib/components/base/modal' ], functi
           let w_code = self.get_settings().widget_code;
   
           $( `div#work-area-${w_code}` ).append( advancedSettingsHtml );
+
+          self.callbacks.bind_actions( true );
         }
 
         return true;
@@ -912,7 +908,7 @@ define([ 'jquery', 'underscore', 'twigjs', 'lib/components/base/modal' ], functi
                   }
               });
           }
-      
+
           if ( self.system().area == "advanced_settings" )
           {
             console.debug( self.name + " << bind_actions für advanced_settings" );
@@ -1322,5 +1318,4 @@ define([ 'jquery', 'underscore', 'twigjs', 'lib/components/base/modal' ], functi
   };
 
   return CustomWidget;
-  
 });
