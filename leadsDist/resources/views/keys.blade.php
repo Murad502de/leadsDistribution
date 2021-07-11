@@ -95,7 +95,7 @@
             <input name = "login" type="login" id="inputIdKey" class="form-control" placeholder="id key" required="" style="margin-bottom: 30px;">
 
             <button class="btn btn-lg btn-outline-success btn-block" type="submit">Enter data</button>
-            <p class="mt-5 mb-3 text-muted">© 2021</p>
+            <p class="mt-5 mb-3 text-muted">itWelt und INTEGRAT © 2021</p>
         </form>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
