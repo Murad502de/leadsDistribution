@@ -8,7 +8,7 @@ Route::get( '/privacyPolicy', function () {
 } );
 
 Route::get( '/keys', function () {
-    return view( 'keys' );
+    return view( 'keys', [ 'url' => 'https://hub.integrat.pro/Murad/leadsDistribution/leadsDist/public' ] );
 } );
 
 Route::post( '/keys/add', [ amoAuthKeysController::class, 'handle' ] )->name( 'keys' );

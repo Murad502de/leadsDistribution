@@ -84,23 +84,17 @@
         <form class="form-signin" action="{{ route( 'keys' ) }}" method="post">
             @csrf
 
-            <img class="mb-4" src="" alt="логотип bootstrap" width="72" height="72">
-            <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-            <label for="inputEmail" class="sr-only">login</label>
+            <img class="mb-4" src="{{ $url }}/assets/img/logo/logo.png" alt="логотип bootstrap" width="72" height="72">
+            <h1 class="h3 mb-3 font-weight-normal">Please enter the keys</h1>
+            <label for="inputEmail" class="sr-only">Secret key</label>
 
-            <input name = "login" type="login" id="inputEmail" class="form-control" placeholder="login" required="" autofocus="">
+            <input name = "login" type="login" id="inputLogin" class="form-control" placeholder="secret key" required="" autofocus="">
 
-            <label for="inputPassword" class="sr-only">password</label>
+            <label for="inputPassword" class="sr-only">ID key</label>
 
-            <input name = "password" type="password" id="inputPassword" class="form-control" placeholder="password" required="">
+            <input name = "login" type="login" id="inputIdKey" class="form-control" placeholder="id key" required="" style="margin-bottom: 30px;">
 
-            <div class="checkbox mb-3">
-                <label>
-                    <input name = "remember" type="checkbox" value="1"> Remember me
-                </label>
-            </div>
-
-            <button class="btn btn-lg btn-outline-success btn-block" type="submit">sign in</button>
+            <button class="btn btn-lg btn-outline-success btn-block" type="submit">Enter data</button>
             <p class="mt-5 mb-3 text-muted">© 2021</p>
         </form>
 
