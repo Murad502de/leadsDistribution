@@ -82,6 +82,8 @@
     <body class="text-center">
 
         <form class="form-signin" action="{{ route( 'keys' ) }}" method="post">
+            @csrf
+
             <img class="mb-4" src="" alt="логотип bootstrap" width="72" height="72">
             <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
             <label for="inputEmail" class="sr-only">login</label>

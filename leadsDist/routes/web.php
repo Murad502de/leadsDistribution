@@ -10,6 +10,6 @@ Route::get( '/keys', function () {
     return view( 'keys' );
 } );
 
-Route::post( '/keys', function () {
-    return 'Testseite';
-} )->name('keys');;
+Route::post( '/keys/add', function () {
+    return 'Testseite add';
+} );
