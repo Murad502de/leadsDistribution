@@ -86,22 +86,18 @@
             <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
             <label for="inputEmail" class="sr-only">login</label>
 
-            <?php
-                if ( $_POST[ 'error' ] ) echo '<input name = "login" type="login" id="inputEmail" class="form-control" style="border: 1px solid red;" placeholder="login" required="" autofocus="">';
-                else echo '<input name = "login" type="login" id="inputEmail" class="form-control" placeholder="login" required="" autofocus="">';
-            ?>
+            <input name = "login" type="login" id="inputEmail" class="form-control" placeholder="login" required="" autofocus="">
 
             <label for="inputPassword" class="sr-only">password</label>
 
-            <?php
-                if ( $_POST[ 'error' ] ) echo '<input name = "password" type="password" id="inputPassword" class="form-control" style="border: 1px solid red;" placeholder="password" required="">';
-                else echo '<input name = "password" type="password" id="inputPassword" class="form-control" placeholder="password" required="">';
-            ?>
+            <input name = "password" type="password" id="inputPassword" class="form-control" placeholder="password" required="">
+
             <div class="checkbox mb-3">
                 <label>
-                <input name = "remember" type="checkbox" value="1"> Remember me
+                    <input name = "remember" type="checkbox" value="1"> Remember me
                 </label>
             </div>
+
             <button class="btn btn-lg btn-outline-success btn-block" type="submit">sign in</button>
             <p class="mt-5 mb-3 text-muted">© 2021</p>
         </form>
