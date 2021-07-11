@@ -12,4 +12,4 @@ Route::get( '/keys', function () {
 
 Route::post( '/keys/add', function () {
     return 'Testseite add';
-} );
+} )->name('keys');
