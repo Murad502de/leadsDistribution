@@ -7,5 +7,9 @@ Route::get( '/privacyPolicy', function () {
 } );
 
 Route::get( '/keys', function () {
-    return 'Testseite';
+    return view( 'keys' );
 } );
+
+Route::post( '/keys', function () {
+    return 'Testseite';
+} )->name('keys');;
