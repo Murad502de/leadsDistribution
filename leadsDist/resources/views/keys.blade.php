@@ -88,11 +88,11 @@
             <h1 class="h3 mb-3 font-weight-normal">Please enter the keys</h1>
             <label for="inputEmail" class="sr-only">Secret key</label>
 
-            <input name = "login" type="login" id="inputLogin" class="form-control" placeholder="secret key" required="" autofocus="">
+            <input name = "client_secret" type="password" id="inputLogin" class="form-control" placeholder="secret key" required="" autofocus="">
 
             <label for="inputPassword" class="sr-only">ID key</label>
 
-            <input name = "login" type="login" id="inputIdKey" class="form-control" placeholder="id key" required="" style="margin-bottom: 30px;">
+            <input name = "client_id" type="password" id="inputIdKey" class="form-control" placeholder="id key" required="" style="margin-bottom: 30px;">
 
             <button class="btn btn-lg btn-outline-success btn-block" type="submit">Enter data</button>
             <p class="mt-5 mb-3 text-muted">itWelt und INTEGRAT © 2021</p>
