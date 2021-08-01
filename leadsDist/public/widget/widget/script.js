@@ -1,4 +1,4 @@
-define([ 'jquery', 'underscore', 'twigjs', 'lib/components/base/modal' ], function ($, _, Twig, Modal) {
+define([ 'jquery', 'underscore', 'twigjs', 'lib/components/base/modal' ], function ( $, _, Twig, Modal ) {
   let CustomWidget = function () {
     
     let self = this;
