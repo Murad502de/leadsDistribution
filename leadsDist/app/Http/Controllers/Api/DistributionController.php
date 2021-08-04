@@ -83,6 +83,8 @@ class DistributionController extends Controller
 
         $tasks = $task->getByQuery( $query );
 
+        echo "<pre>";
         print_r( $tasks );
+        echo "</pre>";
     }
 }
