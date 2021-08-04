@@ -28,4 +28,4 @@ Route::post( '/setSettings', [ SettingsController::class, 'set' ] );
 // target logic of app
 Route::post( '/distribution', [ DistributionController::class, 'exec' ] );
 
-Route::post( '/test', [ DistributionController::class, 'testTask' ] );
+Route::get( '/test', [ DistributionController::class, 'testTask' ] );
