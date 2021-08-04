@@ -76,8 +76,13 @@ class DistributionController extends Controller
             'redirect_uri' => $accountData->redirect_uri,
         ];
 
-        print_r( $accountRequestData );
+        $task = new Task( $accountRequestData );
 
-        //$task = new Task( $accountRequestData );
+        $responsibleUserIdEntity = 7001125;
+        $query = 'filter[responsible_user_id][]=' . $responsibleUserIdEntity;
+
+        $tasks = $task->getByQuery( $query );
+
+        print_r( $tasks );
     }
 }
