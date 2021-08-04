@@ -7,29 +7,22 @@ use App\Services\amoAPI\Http\Http as Http;
 class Task
 {
     private $Http = null;
-    private $TaskDatenbank = null;
     private $accountRequestData = null;
 
     private $maxNumTasksToUpdate = null;
 
     function __construct( $accountRequestData = null )
     {
-        //$this->TaskDatenbank = new Datenbank();
         $this->accountRequestData = $accountRequestData;
 
         $this->Http = new Http();
 
-        $this->maxNumTasksToUpdate = 100;
-
-        //echo "Task\r\n";
+        $this->maxNumTasksToUpdate = 50;
     }
 
     public function updateN( $updateData = null )
     {
         if ( !$updateData ) return false;
-
-        // Accesstoken prufen und aktualisieren, wenn es benotigt ist 
-        //$this->requestData = $this->Http->accessTokenVerification($this->requestData);
             
         //Формируем Httpheaders для запроса
         $this->Http->Httpheaders = [

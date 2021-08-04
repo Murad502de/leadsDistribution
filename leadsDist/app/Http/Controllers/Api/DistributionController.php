@@ -61,4 +61,9 @@ class DistributionController extends Controller
         // FIXME man muss $execResponse überprüfen, ob es Fehler enthaltet
         return response( $execResponse, 200 );
     }
+
+    public function testTask ( Request $request )
+    {
+        echo 'testTask';
+    }
 }
