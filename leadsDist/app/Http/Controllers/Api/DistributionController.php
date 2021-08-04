@@ -16,13 +16,13 @@ class DistributionController extends Controller
 
     function __construct()
     {
-        $this->middleware( 'SessionСheck' )->except('testTask');;
+        $this->middleware( 'SessionСheck' )->except('testTask');
 
         // auth prüfen
-        $this->middleware( 'amoAuth' )->except('testTask');;
+        $this->middleware( 'amoAuth' )->except('testTask');
 
         // access_token überprüfen und aktualisieren es bei Bedarf
-        $this->middleware( 'amoAccessTokenVerification' );
+        $this->middleware( 'amoAccessTokenVerification' )->except('testTask');
     }
 
     
