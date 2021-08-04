@@ -78,7 +78,7 @@ class DistributionController extends Controller
 
         $task = new Task( $accountRequestData );
 
-        $responsibleUserIdEntity = 70011255;
+        $responsibleUserIdEntity = 4444444;//7001125;
         $query = 'filter[responsible_user_id][]=' . $responsibleUserIdEntity;
 
         $tasks = $task->getByQuery( $query );
