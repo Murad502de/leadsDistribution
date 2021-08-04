@@ -9,6 +9,8 @@ use App\Models\Authorization;
 use App\Models\AmoSession;
 use App\Services\Distribution\Distribution;
 
+use App\Services\amoAPI\Classes\TaskClass\Task as Task; // test
+
 class DistributionController extends Controller
 {
     private $dist;
@@ -62,8 +64,20 @@ class DistributionController extends Controller
         return response( $execResponse, 200 );
     }
 
-    public function testTask ( Request $request )
+    public function testTask ( Request $request, Authorization $authorization )
     {
         echo 'testTask';
+
+        $accountData = $authorization->getAccountData( 'integrat3' );
+
+        $accountRequestData = [
+            'subdomain' => $accountData->subdomain,
+            'access_token' => $accountData->access_token,
+            'redirect_uri' => $accountData->redirect_uri,
+        ];
+
+        print_r( $accountRequestData );
+
+        //$task = new Task( $accountRequestData );
     }
 }
