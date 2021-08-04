@@ -10,6 +10,7 @@ class Task
     private $accountRequestData = null;
 
     private $maxNumTasksToUpdate = null;
+    private $limit = null;
 
     function __construct( $accountRequestData = null )
     {
@@ -18,6 +19,7 @@ class Task
         $this->Http = new Http();
 
         $this->maxNumTasksToUpdate = 50;
+        $this->limit = 50;
     }
 
     public function updateN( $updateData = null )
@@ -63,8 +65,9 @@ class Task
     {
         if ( !$query ) return false;
 
-        // Accesstoken prufen und aktualisieren, wenn es benotigt ist 
-        //$this->requestData = $this->Http->accessTokenVerification( $this->requestData );
+        $taskList = [];
+        $respCode = null;
+        $currentPage = 1;
         
         //Формируем Httpheaders для запроса
         $this->Http->Httpheaders = [
@@ -72,10 +75,23 @@ class Task
             'Authorization: Bearer ' . $this->accountRequestData[ 'access_token' ]
         ];
 
-        //Формируем URL для запроса
-        $this->Http->link = 'https://' . $this->accountRequestData[ 'subdomain' ] . '.amocrm.ru/api/v4/tasks?' . $query;
-
         // Serveranfrage ausführen
-        return $this->Http->sendRequest( false, 'GET' );
+        //return $this->Http->sendRequest( false, 'GET' );
+
+        do
+        {
+            $this->Http->link = 'https://' . $this->accountRequestData[ 'subdomain' ] . '.amocrm.ru/api/v4/tasks?' . $query . '&limit=' . $this->limit . '&page=' . $currentPage++;
+
+            $currentPageData = $this->Http->sendRequest( false, 'GET' );
+            $respCode = ( int )$currentPageData[ 'code' ];
+
+            if ( $respCode === 200 )
+            {
+                $taskList[] = $currentPageData[ 'out' ][ '_embedded' ][ 'tasks' ];
+            }
+        }
+        while ( $respCode !== 204 );
+
+        return $taskList;
     }
 }
