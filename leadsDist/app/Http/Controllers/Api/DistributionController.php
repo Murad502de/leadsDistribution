@@ -98,7 +98,7 @@ class DistributionController extends Controller
         {
             for ( $taskPageIndex = 0; $taskPageIndex < \count( $tasks ); $taskPageIndex++ )
             {
-                \file_put_contents( 'data/debug/' . $this->subdomain . '___tasks.txt', \print_r( $tasks, true ) . "\r\n", FILE_APPEND );
+                \file_put_contents( 'data/debug/' . $subdomain . '___tasks.txt', \print_r( $tasks, true ) . "\r\n", FILE_APPEND );
             
                 $tasksPage = $tasks[ $taskPageIndex ];
 
