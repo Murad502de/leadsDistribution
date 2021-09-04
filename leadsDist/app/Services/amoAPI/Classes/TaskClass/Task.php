@@ -85,12 +85,16 @@ class Task
             $currentPageData = $this->Http->sendRequest( false, 'GET' );
             $respCode = ( int )$currentPageData[ 'code' ];
 
-            //if ( $respCode === 200 )
-            //{
+            if ( $respCode === 200 )
+            {
                 $taskList[] = $currentPageData[ 'out' ][ '_embedded' ][ 'tasks' ];
-            //}
+            }
         //}
         //while ( $respCode !== 204 );
+
+        echo "<pre>";
+        print_r( $currentPageData );
+        echo "</pre>";
 
         return $taskList;
     }
