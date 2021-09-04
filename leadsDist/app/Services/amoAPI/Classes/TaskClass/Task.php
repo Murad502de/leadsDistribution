@@ -78,8 +78,8 @@ class Task
         // Serveranfrage ausführen
         //return $this->Http->sendRequest( false, 'GET' );
 
-        //do
-        //{
+        do
+        {
             $this->Http->link = 'https://' . $this->accountRequestData[ 'subdomain' ] . '.amocrm.ru/api/v4/tasks?' . $query . '&limit=' . $this->limit . '&page=' . $currentPage++;
 
             $currentPageData = $this->Http->sendRequest( false, 'GET' );
@@ -89,12 +89,8 @@ class Task
             {
                 $taskList[] = $currentPageData[ 'out' ][ '_embedded' ][ 'tasks' ];
             }
-        //}
-        //while ( $respCode !== 204 );
-
-        echo "<pre>";
-        print_r( $currentPageData );
-        echo "</pre>";
+        }
+        while ( $respCode !== 204 );
 
         return $taskList;
     }
