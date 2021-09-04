@@ -75,9 +75,6 @@ class Task
             'Authorization: Bearer ' . $this->accountRequestData[ 'access_token' ]
         ];
 
-        // Serveranfrage ausführen
-        //return $this->Http->sendRequest( false, 'GET' );
-
         do
         {
             $this->Http->link = 'https://' . $this->accountRequestData[ 'subdomain' ] . '.amocrm.ru/api/v4/tasks?' . $query . '&limit=' . $this->limit . '&page=' . $currentPage++;

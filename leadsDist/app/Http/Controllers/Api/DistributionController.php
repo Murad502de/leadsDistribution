@@ -88,8 +88,16 @@ class DistributionController extends Controller
 
         $tasks = $task->getByQuery( $query );
 
-        echo "<pre>";
-        print_r( $tasks );
-        echo "</pre>";
+        if ()
+        {
+            echo 'Es wurde folgende Aufgaben gefunden<br>';
+            echo "<pre>";
+                print_r( $tasks );
+            echo "</pre>";
+        }
+        else
+        {
+            echo 'Aufgaben wurden nicht gefunden<br>';
+        }
     }
 }
