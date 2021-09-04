@@ -88,7 +88,7 @@ class DistributionController extends Controller
 
         $tasks = $task->getByQuery( $query );
 
-        if ()
+        if ( \count( $tasks ) )
         {
             echo 'Es wurde folgende Aufgaben gefunden<br>';
             echo "<pre>";
