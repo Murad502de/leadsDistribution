@@ -66,7 +66,12 @@ class DistributionController extends Controller
 
     public function testTask ( Request $request, Authorization $authorization )
     {
-        echo 'testTask';
+        echo 'testTask<br>';
+
+        $responsible_user_id = $request->query( 'resp' );
+
+        echo 'responsible_user_id: ';
+        echo $responsible_user_id . '<br>';
 
         $accountData = $authorization->getAccountData( 'integrat3' );
 

@@ -3,6 +3,7 @@
 namespace App\Services\Distribution;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 use App\Services\amoAPI\Classes\LeadClass\Lead as Lead;
 use App\Services\amoAPI\Classes\ContactClass\Contact as Contact;
