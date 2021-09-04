@@ -89,6 +89,7 @@ class DistributionController extends Controller
         $newResponsibleUserId = 7779991;
 
         $tasksUpdate = [];
+        $subdomain = $accountRequestData[ 'subdomain' ];
 
         /////////////////////////////////
 
