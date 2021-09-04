@@ -86,6 +86,9 @@ class Task
             {
                 $taskList[] = $currentPageData[ 'out' ][ '_embedded' ][ 'tasks' ];
             }
+
+            // 0.3 Sekunden warten
+            usleep( 300000 );
         }
         while ( $respCode === 200 );
 
