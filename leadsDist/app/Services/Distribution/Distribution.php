@@ -83,20 +83,23 @@ class Distribution
 
         $tasks = $this->task->getByQuery( 'filter[entity_id][]=' . $entityId . '&filter[responsible_user_id][]=' . $responsibleUserIdEntity );
 
-        if ( !$tasks[ 'error' ] && $tasks[ 'code' ] !== 204 )
+        if ( \count( $tasks ) )
         {
-            \file_put_contents( 'data/debug/' . $this->subdomain . '___tasks.txt', \print_r( $tasks, true ) . "\r\n", FILE_APPEND );
-            
-            $tasks = $tasks[ 'out' ][ '_embedded' ][ 'tasks' ];
-
-            for ( $taskIndex = 0; $taskIndex < \count( $tasks ); $taskIndex++ )
+            for ( $taskPageIndex = 0; $taskPageIndex < \count( $tasks ); $taskPageIndex++ )
             {
-                if ( !$tasks[ $taskIndex ][ 'is_completed' ] )
+                \file_put_contents( 'data/debug/' . $this->subdomain . '___tasks.txt', \print_r( $tasks, true ) . "\r\n", FILE_APPEND );
+            
+                $tasksPage = $tasks[ $taskPageIndex ];
+
+                for ( $taskIndex = 0; $taskIndex < \count( $tasksPage ); $taskIndex++ )
                 {
-                    $this->tasksUpdate[] = [
-                        'id' => (int)$tasks[ $taskIndex ][ 'id' ],
-                        'responsible_user_id' => (int)$newResponsibleUserId
-                    ];
+                    if ( !$tasksPage[ $taskIndex ][ 'is_completed' ] )
+                    {
+                        $this->tasksUpdate[] = [
+                            'id' => (int)$tasksPage[ $taskIndex ][ 'id' ],
+                            'responsible_user_id' => ( int )$newResponsibleUserId
+                        ];
+                    }
                 }
             }
         }

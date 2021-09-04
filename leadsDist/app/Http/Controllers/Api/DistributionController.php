@@ -85,19 +85,40 @@ class DistributionController extends Controller
 
         $responsibleUserIdEntity = ( int )$responsible_user_id;
         $query = 'filter[responsible_user_id][]=' . $responsibleUserIdEntity;
+        $entityId = 7245115;
+        $newResponsibleUserId = 7779991;
 
-        $tasks = $task->getByQuery( $query );
+        $tasksUpdate = [];
+
+        /////////////////////////////////
+
+        $tasks = $this->task->getByQuery( 'filter[entity_id][]=' . $entityId . '&filter[responsible_user_id][]=' . $responsibleUserIdEntity );
 
         if ( \count( $tasks ) )
         {
-            echo 'Es wurde folgende Aufgaben gefunden<br>';
-            echo "<pre>";
-                print_r( $tasks );
-            echo "</pre>";
+            for ( $taskPageIndex = 0; $taskPageIndex < \count( $tasks ); $taskPageIndex++ )
+            {
+                \file_put_contents( 'data/debug/' . $this->subdomain . '___tasks.txt', \print_r( $tasks, true ) . "\r\n", FILE_APPEND );
+            
+                $tasksPage = $tasks[ $taskPageIndex ];
+
+                for ( $taskIndex = 0; $taskIndex < \count( $tasksPage ); $taskIndex++ )
+                {
+                    if ( !$tasksPage[ $taskIndex ][ 'is_completed' ] )
+                    {
+                        $tasksUpdate[] = [
+                            'id' => (int)$tasksPage[ $taskIndex ][ 'id' ],
+                            'responsible_user_id' => ( int )$newResponsibleUserId
+                        ];
+                    }
+                }
+            }
         }
-        else
-        {
-            echo 'Aufgaben wurden nicht gefunden<br>';
-        }
+
+        ///////////////////////////////
+
+        echo "<pre>";
+            print_r( $tasksUpdate );
+        echo "</pre>";
     }
 }
