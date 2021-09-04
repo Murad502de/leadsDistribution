@@ -90,7 +90,7 @@ class Task
                 $taskList[] = $currentPageData[ 'out' ][ '_embedded' ][ 'tasks' ];
             }
         }
-        while ( $respCode !== 204 );
+        while ( $respCode === 200 );
 
         return $taskList;
     }
