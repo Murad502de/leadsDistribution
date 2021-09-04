@@ -92,7 +92,7 @@ class DistributionController extends Controller
 
         /////////////////////////////////
 
-        $tasks = $this->task->getByQuery( 'filter[entity_id][]=' . $entityId . '&filter[responsible_user_id][]=' . $responsibleUserIdEntity );
+        $tasks = $task->getByQuery( 'filter[entity_id][]=' . $entityId . '&filter[responsible_user_id][]=' . $responsibleUserIdEntity );
 
         if ( \count( $tasks ) )
         {
