@@ -27,8 +27,6 @@ class DistributionController extends Controller
         $this->middleware( 'amoAccessTokenVerification' )->except('testTask');
     }
 
-    
-
     public function exec ( Request $request, Authorization $authorization )
     {
         $subdomain = $request->query( 'subdomain' );

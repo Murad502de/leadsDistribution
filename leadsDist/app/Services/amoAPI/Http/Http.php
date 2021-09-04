@@ -2,7 +2,7 @@
 
 namespace App\Services\amoAPI\Http;
 
-//use amoAPI\Data\Datenbank as Datenbank;
+use Illuminate\Support\Facades\Log;
 
 class Http
 {
@@ -21,12 +21,8 @@ class Http
 
     function __construct( $link = null, $Httpheaders = null )
     {
-        //$this->requestData = new Datenbank();
-
         $this->link = $link;
         $this->Httpheaders = $Httpheaders;
-
-        //echo 'Http construct<br>';
     }
 
     public function sendRequest( $AusfuhrDaten = null, $method = 'POST' )
@@ -40,12 +36,12 @@ class Http
         $curl = curl_init(); //Сохраняем дескриптор сеанса cURL
 
         /** Устанавливаем необходимые опции для сеанса cURL  */
-        curl_setopt( $curl,CURLOPT_RETURNTRANSFER, true );
-        curl_setopt( $curl,CURLOPT_USERAGENT,'amoCRM-oAuth-client/1.0' );
-        curl_setopt( $curl,CURLOPT_URL, $this->link );
-        curl_setopt( $curl,CURLOPT_HTTPHEADER, $this->Httpheaders );
-        curl_setopt( $curl,CURLOPT_HEADER, false );
-        curl_setopt( $curl,CURLOPT_CUSTOMREQUEST, $method );
+        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+        curl_setopt( $curl, CURLOPT_USERAGENT,'amoCRM-oAuth-client/1.0' );
+        curl_setopt( $curl, CURLOPT_URL, $this->link );
+        curl_setopt( $curl, CURLOPT_HTTPHEADER, $this->Httpheaders );
+        curl_setopt( $curl, CURLOPT_HEADER, false );
+        curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, $method );
         curl_setopt( $curl, CURLOPT_CONNECTTIMEOUT, 0 ); 
         curl_setopt( $curl, CURLOPT_TIMEOUT, 200 ); //timeout in seconds
 
@@ -65,7 +61,7 @@ class Http
          * Это пример. Вы можете обработать данные своим способом.
         */
 
-        $code = (int)$code;
+        $code = ( int )$code;
 
         try
         {
@@ -77,14 +73,14 @@ class Http
         }
         catch( \Exception $e )
         {
-            // FIXME es muss nicht hier aufgeschrieben werden, sondern im Kontroller
-            \file_put_contents( 'serverQuery_error.txt', "Error:\r\n", FILE_APPEND );
-            \file_put_contents( 'serverQuery_error.txt', "Errorscode:" . $e->getMessage() . "\r\n" . $e->getCode() . "\r\n", FILE_APPEND );
-            \file_put_contents( 'serverQuery_error.txt', "Serveranfragelink:\r\n" . $this->link . "\r\n", FILE_APPEND );
-            \file_put_contents( 'serverQuery_error.txt', "AusfuhrDaten:\r\n", FILE_APPEND );
-            \file_put_contents( 'serverQuery_error.txt', \print_r( $AusfuhrDaten, true ) . "\r\n", FILE_APPEND );
-            \file_put_contents( 'serverQuery_error.txt', "Out:\r\n", FILE_APPEND );
-            \file_put_contents( 'serverQuery_error.txt', \print_r( $out, true ) . "\r\n", FILE_APPEND );
+            Log::error(
+                "amoAPI << [ sendRequest ] : Error while sending request\r\n" .
+                "error code: " . $e->getCode() . "\r\n" .
+                "error message: " . $e->getMessage() . "\r\n" .
+                "request link: " . $this->link . "\r\n" .
+                "exported data: " . \print_r( $AusfuhrDaten, true ) . "\r\n" .
+                "request response: " . \print_r( $out, true ) . "\r\n"
+            );
 
             /**
              * Данные получаем в формате JSON, поэтому, для получения читаемых данных,
